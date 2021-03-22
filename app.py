@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from elements import *
+from qt_material import apply_stylesheet
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -12,6 +13,7 @@ class MainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
+        apply_stylesheet(app, theme='dark_teal.xml')
         self.setWindowTitle("MaXelerate")
         btn = QPushButton("Open File")
         elementsBtn = QPushButton("Show Elements")
