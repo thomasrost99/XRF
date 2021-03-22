@@ -1,6 +1,6 @@
 import signal
 import sys
-import signal
+import csv
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -29,16 +29,21 @@ class MainWindow(QMainWindow):
         elementsBtn.clicked.connect(self.show_new_window)
         self.show()
 
+    def open(self):
+        dialog = QFileDialog
+        res = dialog.getOpenFileName(self, 'Open file', 'c:\\Users\\thoma\\Downloads',"Csv files (*.csv)")
+        file = open(res[0] ,'r')
+        reader = csv.reader(file)
+        line_count = 0
+        for row in reader:
+           qDebug(row[5])
+           line_count += 1
+        file.close()
+        qDebug(res[0])    
+        
     def show_new_window(self, checked):
         self.w = ElementSelectorWindow()
         self.w.show()
-
-    def open(self):
-        path = QFileDialog.getOpenFileName(self, 'Open a file', '', 'All Files (*.*)')
-        if path != ('', ''): print("File path : "+ path[0])
-
-
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
