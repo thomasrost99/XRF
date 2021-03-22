@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
-
+from elements import *
 
 def window():
    app = QApplication(sys.argv)
@@ -15,7 +15,11 @@ def window():
    layout.addWidget(textLabel)
 
    layout.addWidget(QPushButton("Upload File"))
-   layout.addWidget(QPushButton("Choose Element"))
+
+   button2 = QPushButton("Choose Element")
+   button2.clicked.connect(showElements)
+   layout.addWidget(button2)
+
    layout.addWidget(QPushButton("Make Graph"))
 
    widget.setGeometry(300,300,300,300)
@@ -25,6 +29,8 @@ def window():
 
    sys.exit(app.exec_())
 
+def showElements():
+    print("Helloo")
 
 
 if __name__ == '__main__':
