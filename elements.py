@@ -5,11 +5,14 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import PyQt5
 
-class Element(QWidget):
-
+class AnotherWindow(QWidget):
+    """
+    This "window" is a QWidget. If it has no parent, it
+    will appear as a free-floating window as we want.
+    """
     def __init__(self):
-        super(Element, self).__init__()
-        self.setGeometry(50, 50, 500, 300)
-        self.setWindowTitle("PyQT tuts!")
-        #self.setWindowIcon(QtGui.QIcon('pythonlogo.png'))
-        self.show()
+        super().__init__()
+        layout = QVBoxLayout()
+        self.label = QLabel("Another Window")
+        layout.addWidget(self.label)
+        self.setLayout(layout)

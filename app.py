@@ -1,37 +1,35 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QMainWindow
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
-from elements import *
+#from elements import *
 
-def window():
-   app = QApplication(sys.argv)
-   widget = QWidget()
+class MainWindow(QMainWindow):
 
-   layout = QVBoxLayout()
-   textLabel = QLabel(widget)
-   textLabel.setText("<h1>Jack is a retard whore!</h1>")
-   #textLabel.move(10,10)
-   layout.addWidget(textLabel)
+    def __init__(self):
+        super().__init__()
+        self.button = QPushButton("Push for Window")
+        self.button.clicked.connect(self.show_new_window)
+        self.setCentralWidget(self.button)
 
-   layout.addWidget(QPushButton("Upload File"))
+    def show_new_window(self, checked):
+        self.w = AnotherWindow()
+        self.w.show()
 
-   button2 = QPushButton("Choose Element")
-   button2.clicked.connect(showElements)
-   layout.addWidget(button2)
-
-   layout.addWidget(QPushButton("Make Graph"))
-
-   widget.setGeometry(300,300,300,300)
-   widget.setWindowTitle("PyQt5 Example")
-   widget.setLayout(layout)
-   widget.show()
-
-   sys.exit(app.exec_())
-
-def showElements():
-    print("Helloo")
+class AnotherWindow(QWidget):
+    """
+    This "window" is a QWidget. If it has no parent, it
+    will appear as a free-floating window as we want.
+    """
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.label = QLabel("Another Window")
+        layout.addWidget(self.label)
+        self.setLayout(layout)
 
 
-if __name__ == '__main__':
-    window()
+app = QApplication(sys.argv)
+w = MainWindow()
+w.show()
+app.exec_()
