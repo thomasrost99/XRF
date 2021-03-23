@@ -51,7 +51,7 @@ class InputSelectorWindow(QWidget):
     def XRFClicked(self, qmodelindex):
         if(self.XRFInput.currentItem().text() == "Add an XRF file..."):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', 'c:\\Users\\thoma\\Downloads',"Csv files (*.csv)")
+            res = dialog.getOpenFileName(self, 'Open file', '',"Csv files (*.csv)")
             if(res[0]):
                 self.XRFInput.insertItem(1, res[0])
         else:
@@ -62,7 +62,7 @@ class InputSelectorWindow(QWidget):
     # is selected again, choose a new file to replace it.
     def CalClicked(self, qmodelindex):
         dialog = QFileDialog
-        res = dialog.getOpenFileName(self, 'Open file', 'c:\\Users\\thoma\\Downloads',"Csv files (*.csv)")
+        res = dialog.getOpenFileName(self, 'Open file', '',"Csv files (*.csv)")
         # file = open(res[0] ,'r')
         # reader = csv.reader(file)
         # file.close()
