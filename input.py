@@ -52,17 +52,11 @@ class InputSelectorWindow(QWidget):
         if(self.XRFInput.currentItem().text() == "Add an XRF file..."):
             dialog = QFileDialog
             res = dialog.getOpenFileName(self, 'Open file', 'c:\\Users\\thoma\\Downloads',"Csv files (*.csv)")
-            # file = open(res[0] ,'r')
-            # reader = csv.reader(file)
-            # file.close()
             if(res[0]):
                 self.XRFInput.insertItem(1, res[0])
-            items = self.XRFInput.selectedItems()
-            value = [i.text() for i in list(items)]
-            self.XRFInput.clearSelection()
         else:
             self.XRFInput.takeItem(self.XRFInput.currentRow())
-            self.XRFInput.clearSelection()
+        self.XRFInput.clearSelection()
 
     # If the "add" item is clicked in Calibration input, choose a new csv file to add to the list. If the only item in the list
     # is selected again, choose a new file to replace it.
@@ -74,12 +68,9 @@ class InputSelectorWindow(QWidget):
         # file.close()
         if(res[0]):
             self.calibrationInput.insertItem(1, res[0])
-        print(res[0])
-
-        items = self.calibrationInput.selectedItems()
-        value = [i.text() for i in list(items)]
-        print(value)
-        self.calibrationInput.takeItem(0)
+            items = self.calibrationInput.selectedItems()
+            value = [i.text() for i in list(items)]
+            self.calibrationInput.takeItem(0)
         self.calibrationInput.clearSelection()
 
     # Close input window. Eventually will need to pass all file data to next "module"
