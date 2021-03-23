@@ -36,3 +36,4 @@ class ElementSelectorWindow(QWidget):
 
     def confirmElementSelection(self):
         print("Next Window")
+        self.close()
