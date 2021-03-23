@@ -37,8 +37,8 @@ class MainWindow(QMainWindow):
         elementsBtn = QPushButton("Show Elements")
 
         # Add buttons to layout
-        layout.addWidget(openFileButton, 2, 1)
-        layout.addWidget(elementsBtn, 3, 1)
+        layout.addWidget(openFileButton, 1, 0)
+        layout.addWidget(elementsBtn, 2, 0)
 
         # Call button functions on click
         openFileButton.clicked.connect(self.open_input_window)
@@ -65,9 +65,9 @@ class MainWindow(QMainWindow):
         self.w.setGeometry(screenWidth//2 - screenWidth//4, screenHeight//2 - screenHeight//5, screenWidth//2, screenHeight//2)
         self.w.show()
 
+        # Example to add a new button
         tempButton = QPushButton("Temp")
-        self.centralWidget().layout().addWidget(tempButton, 4, 1)
-        self.centralWidget().layout().itemAtPosition(3,1)
+        self.centralWidget().layout().addWidget(tempButton, 3, 0)
 
     # Opens the file selector window
     def open_input_window(self, checked):
@@ -75,9 +75,15 @@ class MainWindow(QMainWindow):
         self.w.setGeometry(screenWidth//2 - screenWidth//4, screenHeight//2 - screenHeight//5, screenWidth//2, screenHeight//3)
         self.w.show()
 
+        # Example to delete the button added above
+        if(self.centralWidget().layout().rowCount() > 3):
+            self.centralWidget().layout().itemAtPosition(3,0).widget().close()
+
 if __name__ == '__main__':
     global app
     app = QApplication(sys.argv)
     window = MainWindow()
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.exec_()
+    # Will print all open objects
+    print('\n'.join(repr(w) for w in app.allWidgets()))
