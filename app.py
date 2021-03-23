@@ -24,11 +24,13 @@ class MainWindow(QMainWindow):
         apply_stylesheet(app, theme='dark_teal.xml')
         self.setWindowTitle("MaXelerate")
         layout = QGridLayout()
-        layout.setVerticalSpacing(500)
+        layout.setVerticalSpacing(30)
+        layout.setSpacing(50)
+        layout.setContentsMargins(30,0,30,0)
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
-        self.setGeometry(screenWidth//2 - screenWidth//4, screenHeight//3 - screenHeight//4, screenWidth//2, screenHeight//2)
+        self.setGeometry(screenWidth//2 - screenWidth//4, screenHeight//3 - screenHeight//4, screenWidth//4, screenHeight//4)
 
         # Create buttons
         openFileButton = QPushButton("Open File")
@@ -62,6 +64,10 @@ class MainWindow(QMainWindow):
         self.w = ElementSelectorWindow()
         self.w.setGeometry(screenWidth//2 - screenWidth//4, screenHeight//2 - screenHeight//5, screenWidth//2, screenHeight//2)
         self.w.show()
+
+        tempButton = QPushButton("Temp")
+        self.centralWidget().layout().addWidget(tempButton, 4, 1)
+        self.centralWidget().layout().itemAtPosition(3,1)
 
     # Opens the file selector window
     def open_input_window(self, checked):
