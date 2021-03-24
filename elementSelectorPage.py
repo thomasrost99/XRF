@@ -17,22 +17,17 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
 
         self.listwidget = QListWidget()
         self.listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
-        for i in range(1,21):
+        for i in range(1,70):
             self.listwidget.insertItem(i, str(i))
 
         self.listwidget.clicked.connect(self.clicked)
         layout.addWidget(self.listwidget)
 
-        nextButton = QPushButton("Continue")
-        nextButton.clicked.connect(self.confirmElementSelection)
-        layout.addWidget(nextButton)
         self.setLayout(layout)
+
+        self.selectedElements = []
 
     def clicked(self, qmodelindex):
         items = self.listwidget.selectedItems()
-        value = [i.text() for i in list(items)]
-        print(value)
-
-    def confirmElementSelection(self):
-        print("Next Window")
-        self.close()
+        self.selectedElements = [i.text() for i in list(items)]
+        #print(self.selectedElements)

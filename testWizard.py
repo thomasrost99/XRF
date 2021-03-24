@@ -18,17 +18,52 @@ class QIComboBox(QtWidgets.QComboBox):
 class MacWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
         super(MacWizard, self).__init__(parent)
+        self.setWindowTitle("MaXelerate")
+
+        #apply styles
         #apply_stylesheet(app, theme='dark_blue.xml')
+        self.setWizardStyle(1)
 
         # Define screen size
         global screenHeight, screenWidth
         screenHeight = app.primaryScreen().size().height()
         screenWidth = app.primaryScreen().size().width()
+        #set size of wizard
+        self.setGeometry(screenWidth//4, screenHeight//4, screenWidth//2, screenHeight//2)
 
-        self.setWindowTitle("MaXelerate")
-        self.addPage(ElementSelectorPage(self))
-        self.addPage(InputSelectorPage(self))
-        self.resize(screenWidth//4, screenHeight//4)
+        #create pages to add to wizard
+        self.inputPage = InputSelectorPage(self)
+        self.elementPage = ElementSelectorPage(self)
+
+        global inputPageID, elementPageID
+        inputPageID = 0
+        elementPageID = 1
+        #Add pages in order to the wizard
+        self.setPage(inputPageID, self.inputPage)
+        self.setPage(elementPageID, self.elementPage)
+
+
+
+        #link all buttons to proper functions
+        self.button(QWizard.NextButton).clicked.connect(self.nextClicked)
+        self.button(QWizard.FinishButton).clicked.connect(self.finishClicked)
+        self.button(QWizard.CancelButton).clicked.connect(self.cancelClicked)
+        self.button(QWizard.BackButton).clicked.connect(self.backClicked)
+
+    def nextClicked(self):
+        print(QWizard.currentPage(self))
+        print(QWizard.currentId(self))
+        #self.button(QWizard.BackButton).setEnabled(False)
+        #print(self.elementPage.selectedElements)
+
+    def finishClicked(self):
+        print("Make Output / Check if this replaced the next button")
+
+    def cancelClicked(self):
+        print("Cancelled")
+
+    def backClicked(self):
+        print("DAK IS BACK")
 
 class Page2(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -51,4 +86,4 @@ if __name__ == '__main__':
     wizard.show()
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.exec_()
-    print('\n'.join(repr(w) for w in app.allWidgets()))
+    #print('\n'.join(repr(w) for w in app.allWidgets()))
