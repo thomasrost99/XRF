@@ -19,10 +19,16 @@ class MacWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
         super(MacWizard, self).__init__(parent)
         #apply_stylesheet(app, theme='dark_blue.xml')
+
+        # Define screen size
+        global screenHeight, screenWidth
+        screenHeight = app.primaryScreen().size().height()
+        screenWidth = app.primaryScreen().size().width()
+
         self.setWindowTitle("MaXelerate")
         self.addPage(ElementSelectorPage(self))
         self.addPage(InputSelectorPage(self))
-        self.resize(640,480)
+        self.resize(screenWidth//4, screenHeight//4)
 
 class Page2(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
