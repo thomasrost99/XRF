@@ -49,7 +49,7 @@ class MacWizard(QtWidgets.QWizard):
         self.button(QWizard.BackButton).clicked.connect(self.backClicked)
 
     def lockButton(self, name):
-        print('LOCKED' + name)
+        print('LOCKED: ' + name)
         if(name=='back'):
             self.button(QWizard.BackButton).setEnabled(False)
         elif(name=='next'):
@@ -63,7 +63,7 @@ class MacWizard(QtWidgets.QWizard):
         return True
 
     def unlockButton(self, name):
-        print('UNLOCKED' + name)
+        print('UNLOCKED: ' + name)
         if(name=='back'):
             self.button(QWizard.BackButton).setEnabled(True)
         elif(name=='next'):
@@ -76,18 +76,25 @@ class MacWizard(QtWidgets.QWizard):
             return False
         return True
 
+        #look into using this to prevent moving onto next page
+    def isComplete(self):
+        print("complete")
+        return False
+        #emit.completeChanged
+
+
 
     def nextClicked(self):
         #print(QWizard.currentPage(self))
         print(QWizard.currentId(self))
         pageID = QWizard.currentId(self)
+        self.isComplete()
         if(pageID == inputPageID):
-            self.lockButton('back')
-            print("Check that input is right then advance")
 
+            print("Check that input is right then advance")
         elif(pageID == elementPageID):
+            self.lockButton('back')
             print("Verify elements selected are valid then advance")
-        #self.button(QWizard.BackButton).setEnabled(False)
         #print(self.elementPage.selectedElements)
 
     def finishClicked(self):
