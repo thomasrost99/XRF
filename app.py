@@ -8,7 +8,9 @@ from elements import *
 from input import *
 from qt_material import apply_stylesheet
 
-class MainWindow(QMainWindow):    
+class MainWindow(QMainWindow):
+
+
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
 
@@ -23,27 +25,36 @@ class MainWindow(QMainWindow):
         # Initialize window with style and format
         apply_stylesheet(app, theme='dark_teal.xml')
         self.setWindowTitle("MaXelerate")
-        layout = QGridLayout()
-        layout.setVerticalSpacing(30)
-        layout.setSpacing(50)
-        layout.setContentsMargins(30,0,30,0)
-        widget = QWidget()
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
+        self.layout = QGridLayout()
+        self.layout.setVerticalSpacing(30)
+        self.layout.setSpacing(50)
+        self.layout.setContentsMargins(30,0,30,0)
+        self.widget = QWidget()
+
+        toolbutt = QToolButton()
+        toolbutt.setArrowType(Qt.LeftArrow)
+        toolbutt.show()
+        #self.layout.addWidget(toolbutt,3,0)
+        self.widget.setLayout(self.layout)
+        #toolbutt.setGeometry(50, 50, 50, 50)
+        self.setCentralWidget(self.widget)
         self.setGeometry(screenWidth//2 - screenWidth//4, screenHeight//3 - screenHeight//4, screenWidth//4, screenHeight//4)
+
+        #fileText = QTextItem("<h1>MaXelerate<\h1>")
 
         # Create buttons
         openFileButton = QPushButton("Open File")
         elementsBtn = QPushButton("Show Elements")
 
         # Add buttons to layout
-        layout.addWidget(openFileButton, 1, 0)
-        layout.addWidget(elementsBtn, 2, 0)
+        #layout.addWidget(fileText, 0, 0)
+        self.layout.addWidget(openFileButton, 1, 0)
+        self.layout.addWidget(elementsBtn, 2, 0)
 
         # Call button functions on click
         openFileButton.clicked.connect(self.open_input_window)
         elementsBtn.clicked.connect(self.open_element_window)
-        
+
         self.show()
 
     # File browser functionality. Moved to input.py for the moment, may remove later.
@@ -57,17 +68,20 @@ class MainWindow(QMainWindow):
     #        print(row[5])
     #        line_count += 1
     #     file.close()
-    #     print(res[0])    
-        
+    #     print(res[0])
+
     # Opens the element selector window
     def open_element_window(self, checked):
-        self.w = ElementSelectorWindow()
-        self.w.setGeometry(screenWidth//2 - screenWidth//4, screenHeight//2 - screenHeight//5, screenWidth//2, screenHeight//2)
-        self.w.show()
+        wid = ElementSelectorWindow()
+        #self.w.setGeometry(screenWidth//2 - screenWidth//4, screenHeight//2 - screenHeight//5, screenWidth//2, screenHeight//2)
+        #self.w.show()
+        self.layout.addWidget(wid)
+        self.layout.itemAt(0).widget().hide()
+        self.layout.itemAt(1).widget().hide()
 
         # Example to add a new button
-        tempButton = QPushButton("Temp")
-        self.centralWidget().layout().addWidget(tempButton, 3, 0)
+        #tempButton = QPushButton("Temp")
+        #self.centralWidget().layout().addWidget(tempButton, 3, 0)
 
     # Opens the file selector window
     def open_input_window(self, checked):
