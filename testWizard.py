@@ -8,6 +8,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from elementSelectorPage import *
 from inputSelectorPage import *
+from optionsPage import *
 from qt_material import apply_stylesheet
 
 class QIComboBox(QtWidgets.QComboBox):
@@ -34,13 +35,16 @@ class MacWizard(QtWidgets.QWizard):
         #create pages to add to wizard
         self.inputPage = InputSelectorPage(self)
         self.elementPage = ElementSelectorPage(self)
+        self.thirdPage = OptionsPage(self)
 
         global inputPageID, elementPageID
         inputPageID = 0
         elementPageID = 1
+        optionsID = 2
         #Add pages in order to the wizard
         self.setPage(inputPageID, self.inputPage)
         self.setPage(elementPageID, self.elementPage)
+        self.setPage(optionsID, self.thirdPage)
 
         #link all buttons to proper functions
         self.button(QWizard.NextButton).clicked.connect(self.nextClicked)
