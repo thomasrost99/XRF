@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from random import randint
+from app import *
 
 class InputSelectorPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -52,7 +53,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def XRFClicked(self, qmodelindex):
         if(self.XRFInput.currentItem().text() == "Add an XRF file"):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', '',"Csv files (*.csv)")
+            res = dialog.getOpenFileName(self, 'Open file', '',"XRF files (*.csv, *.xlsx)")
             if(res[0]):
                 duplicate = 0
                 for i in range(self.XRFInput.count()):
@@ -69,7 +70,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def ConClicked(self, qmodelindex):
         if(self.conInput.currentItem().text() == "Add a Concentration file"):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', '',"Csv files (*.csv)")
+            res = dialog.getOpenFileName(self, 'Open file', '',"Calibration files (*.csv, *.xlsx)")
             if(res[0]):
                 duplicate = 0
                 for i in range(self.conInput.count()):
@@ -81,10 +82,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             self.conInput.takeItem(self.conInput.currentRow())
         self.conInput.clearSelection()
 
-    # Close input window. Eventually will need to pass all file data to next "module"
-    def confirmElementSelection(self):
-        print("Next Window")
-        self.close()
 
     # Close input window. Eventually will need to pass all file data to next "module"
     def testInputParse(self):
@@ -142,4 +139,4 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     # Section: 1
     # Offset: X 20.0mm OR X1120.00mm
     # For calibration:
-    # Hole, Core Type, Section, Offset (mm), 
+    # Hole, Core Type, Section, Offset (mm),
