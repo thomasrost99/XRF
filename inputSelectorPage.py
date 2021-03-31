@@ -5,6 +5,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from random import randint
+#import openpyxl
+import pandas as pd
+import csv
+
 
 class InputSelectorPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -60,7 +64,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                         duplicate = 1
                 if not duplicate:
                     self.XRFInput.insertItem(1, res[0])
-                    self.isFileVaid()
+                    self.isFileVaid("XRF")
         else:
             self.XRFInput.takeItem(self.XRFInput.currentRow())
         self.XRFInput.clearSelection()
@@ -78,29 +82,84 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                         duplicate = 1
                 if not duplicate:
                     self.conInput.insertItem(1, res[0])
-                    self.isFileVaid()
+                    self.isFileVaid("Concentration")
         else:
             self.conInput.takeItem(self.conInput.currentRow())
         self.conInput.clearSelection()
 
-
-    def isFileVaid(self):
-        print("check if file has info we need")
-        missingFields = ["name","core","cooter"]
+    def createFileErrorMsgBox(self, missingFields):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
-        msg.setText("Uploaded file is missing the following column headers: ")
-        add = ""
-        for i in range(0,len(missingFields)):
-            add += missingFields[i] + ", "
-        msg.setInformativeText(add)
+        msg.setText("Update the file to include the headers listed below.")
+        msg.setInformativeText("You may select retry to manually upload this information.")
+        detailed = "Missing Headers:\n" + '\n'.join(missingFields)
+        msg.setDetailedText(detailed)
         msg.setWindowTitle("Error: Missing Values")
-        msg.setStandardButtons(QMessageBox.Ok)
+        msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Retry)
         msg.buttonClicked.connect(self.msgbtn)
         msg.exec_()
 
+    def unifyHeaderNames(self, columns):
+        #replace some variations on important names
+        if("Core Type" in columns):
+            columns[columns.index("Core Type")] = "Type"
+        for header in columns:
+            if("Interval" in header):
+                columns[columns.index(header)] = "Interval"
+                break
+
+        return columns
+
+    def isFileVaid(self, key):
+        valid = True
+        print("check if file has info we need")
+        missingFields = []
+        neededData = ["Site","Hole","Core", "Type","Section","Interval"]
+
+        #concentration file validation
+        if(key=="Concentration"):
+            filename = self.conInput.item(1).text()
+        #XRF file validation
+        elif(key=="XRF"):
+            filename = self.XRFInput.item(1).text()
+        else:
+            valid = False
+
+        print("File: ", filename)
+        file = open(filename , 'r')
+        reader = csv.DictReader(file)
+        dict_from_csv = dict(list(reader)[0])
+        columns = list(dict_from_csv.keys())
+        columns = self.unifyHeaderNames(columns)
+        print("Columns ", columns)
+
+        # columns = parse itrax, parse avaa
+        #concentrations and U files already are good
+
+        #does it have all the data we need? what data is it missing?
+        for key in neededData:
+            if(not (key in columns)):
+                missingFields.append(key)
+
+        #-----------TODO--------add check for valid element
+
+        #Were they missing something?
+        if(len(missingFields)>0):
+            valid = False
+
+        if(not valid):
+            self.createFileErrorMsgBox(missingFields)
+            #remove file from list
+        return
+
+
     def msgbtn(self, i):
+        if(i.text()=="Retry"):
+
+
         print("Button pressed: " + i.text())
+
+    def manuallyEnterCoreInfo(self, missingFields):
 
 
     # Close input window. Eventually will need to pass all file data to next "module"
@@ -133,19 +192,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         #     line_count += 1
         file.close()
 
-
-
-    # Example file browser
-    # dialog = QFileDialog
-    # res = dialog.getOpenFileName(self, 'Open file', 'c:\\Users\\thoma\\Downloads',"Csv files (*.csv)")
-    # file = open(res[0] ,'r')
-    # reader = csv.reader(file)
-    # line_count = 0
-    # for row in reader:
-    #    print(row[5])
-    #    line_count += 1
-    # file.close()
-    # print(res[0])
 
 
     # Data we need from csv files:
