@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from random import randint
+import csv
+import re
 
 class InputSelectorWindow(QWidget):
     def __init__(self):
@@ -43,6 +45,11 @@ class InputSelectorWindow(QWidget):
         nextButton.clicked.connect(self.confirmElementSelection)
         layout.addWidget(nextButton, 2, 0, 1, 2)
 
+        # Add the test parse button across bottom of both columns
+        nextButton = QPushButton("Test File Parsing")
+        nextButton.clicked.connect(self.testInputParse)
+        layout.addWidget(nextButton, 3, 0, 1, 2)
+
         layout.setVerticalSpacing(10)
         self.setLayout(layout)
 
@@ -78,6 +85,38 @@ class InputSelectorWindow(QWidget):
         print("Next Window")
         self.close()
 
+    # Close input window. Eventually will need to pass all file data to next "module"
+    def testInputParse(self):
+        print("Testing Input Parsing")
+        print(self.XRFInput.item(1).text())
+        file = open(self.XRFInput.item(1).text() ,'r')
+        reader = csv.reader(file)
+        line_count = 0
+        # print(reader.__next__())
+        reader.__next__()
+        spectrum = reader.__next__()[0]
+        print("Not parsed", spectrum)
+        testOut = spectrum.replace('-', ' ').split(' ')
+        print(testOut)
+        sectionCoreType = testOut[2]
+        section, coreType = list(testOut[2])
+        print(testOut)
+        print(section)
+        print(coreType)
+        testOut[2] = section
+        testOut.insert(3,coreType)
+        print(testOut)
+
+        # Split up index 2
+
+
+        # for row in reader:
+        #     print(row[5])
+        #     line_count += 1
+        file.close()
+
+
+
     # Example file browser
     # dialog = QFileDialog
     # res = dialog.getOpenFileName(self, 'Open file', 'c:\\Users\\thoma\\Downloads',"Csv files (*.csv)")
@@ -89,3 +128,18 @@ class InputSelectorWindow(QWidget):
     #    line_count += 1
     # file.close()
     # print(res[0])
+
+
+    # Data we need from csv files:
+    # For primary key:
+    # Spectrum column will need to be broken down into
+    # 374-U1524A-1H-1-A_SHLF9353571 X  20.0mm
+    # Expedition: 374
+    # SiteID: U1524A
+    # Hole: 1
+    # Core Type: H
+    # Section: 1
+    # Offset: X 20.0mm OR X1120.00mm
+    # For calibration:
+    # Hole, Core, Type, Section, Offset (mm), 
+    # 
