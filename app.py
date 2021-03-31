@@ -9,6 +9,7 @@ from PyQt5.QtCore import *
 from elementSelectorPage import *
 from inputSelectorPage import *
 from optionsPage import *
+from graphPage import *
 from qt_material import apply_stylesheet
 
 class QIComboBox(QtWidgets.QComboBox):
@@ -36,15 +37,18 @@ class MacWizard(QtWidgets.QWizard):
         self.inputPage = InputSelectorPage(self)
         self.elementPage = ElementSelectorPage(self)
         self.thirdPage = OptionsPage(self)
+        self.graphPage = GraphPage(self)
 
         global inputPageID, elementPageID
         inputPageID = 0
         elementPageID = 1
         optionsID = 2
+        graphPageID = 3
         #Add pages in order to the wizard
         self.setPage(inputPageID, self.inputPage)
         self.setPage(elementPageID, self.elementPage)
         self.setPage(optionsID, self.thirdPage)
+        self.setPage(graphPageID, self.graphPage)
 
         #link all buttons to proper functions
         self.button(QWizard.NextButton).clicked.connect(self.nextClicked)
@@ -93,10 +97,10 @@ class MacWizard(QtWidgets.QWizard):
         print(QWizard.currentId(self))
         pageID = QWizard.currentId(self)
         self.isComplete()
-        if(pageID == inputPageID):
+        if((pageID - 1) == inputPageID):
 
             print("Check that input is right then advance")
-        elif(pageID == elementPageID):
+        elif((pageID - 1) == elementPageID):
             self.lockButton('back')
             print("Verify elements selected are valid then advance")
         #print(self.elementPage.selectedElements)

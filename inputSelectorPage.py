@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from random import randint
+from app import *
 
 class InputSelectorPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -47,7 +48,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def XRFClicked(self, qmodelindex):
         if(self.XRFInput.currentItem().text() == "Add an XRF file..."):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', '',"Csv files (*.csv)")
+            res = dialog.getOpenFileName(self, 'Open file', '',"XRF files (*.csv, *.xlsx)")
             if(res[0]):
                 self.XRFInput.insertItem(1, res[0])
         else:
@@ -58,7 +59,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     # is selected again, choose a new file to replace it.
     def CalClicked(self, qmodelindex):
         dialog = QFileDialog
-        res = dialog.getOpenFileName(self, 'Open file', '',"Csv files (*.csv)")
+        res = dialog.getOpenFileName(self, 'Open file', '',"Calibration files (*.csv, *.xlsx)")
         # file = open(res[0] ,'r')
         # reader = csv.reader(file)
         # file.close()
@@ -69,10 +70,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             self.calibrationInput.takeItem(0)
         self.calibrationInput.clearSelection()
 
-    # Close input window. Eventually will need to pass all file data to next "module"
-    def confirmElementSelection(self):
-        print("Next Window")
-        self.close()
 
     # Example file browser
     # dialog = QFileDialog
