@@ -5,8 +5,6 @@ import csv
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from elements import *
-from input import *
 
 class OptionsPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):

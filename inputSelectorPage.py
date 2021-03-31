@@ -39,11 +39,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         self.calibrationInput.clicked.connect(self.CalClicked)
         layout.addWidget(self.calibrationInput, 1, 1)
 
-        # Add the continue button across bottom of both columns
-        nextButton = QPushButton("Continue")
-        nextButton.clicked.connect(self.confirmElementSelection)
-        layout.addWidget(nextButton, 2, 0, 1, 2)
-
         layout.setVerticalSpacing(10)
         self.setLayout(layout)
 
