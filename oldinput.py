@@ -34,11 +34,11 @@ class InputSelectorWindow(QWidget):
         layout.addWidget(self.XRFInput, 1, 0)
 
         # Create Calibration list widget and add to the second column
-        self.calibrationInput = QListWidget()
-        self.calibrationInput.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.calibrationInput.insertItem(0, "Add a Calibration file...")
-        self.calibrationInput.clicked.connect(self.CalClicked)
-        layout.addWidget(self.calibrationInput, 1, 1)
+        self.conInput = QListWidget()
+        self.conInput.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.conInput.insertItem(0, "Add a Concentration file...")
+        self.conInput.clicked.connect(self.CalClicked)
+        layout.addWidget(self.conInput, 1, 1)
         
         # Add the continue button across bottom of both columns
         nextButton = QPushButton("Continue")
@@ -65,20 +65,17 @@ class InputSelectorWindow(QWidget):
             self.XRFInput.takeItem(self.XRFInput.currentRow())
         self.XRFInput.clearSelection()
 
-    # If the "add" item is clicked in Calibration input, choose a new csv file to add to the list. If the only item in the list
-    # is selected again, choose a new file to replace it.
-    def CalClicked(self, qmodelindex):
-        dialog = QFileDialog
-        res = dialog.getOpenFileName(self, 'Open file', '',"Csv files (*.csv)")
-        # file = open(res[0] ,'r')
-        # reader = csv.reader(file)
-        # file.close()
-        if(res[0]):
-            self.calibrationInput.insertItem(1, res[0])
-            items = self.calibrationInput.selectedItems()
-            value = [i.text() for i in list(items)]
-            self.calibrationInput.takeItem(0)
-        self.calibrationInput.clearSelection()
+    # If "add" item is clicked in Concentration input, choose a new csv file to add to the list. If any other list item is clicked,
+    # it should be removed.
+    def ConClicked(self, qmodelindex):
+        if(self.conInput.currentItem().text() == "Add a Concentration file..."):
+            dialog = QFileDialog
+            res = dialog.getOpenFileName(self, 'Open file', '',"Csv files (*.csv)")
+            if(res[0]):
+                self.conInput.insertItem(1, res[0])
+        else:
+            self.conInput.takeItem(self.conInput.currentRow())
+        self.conInput.clearSelection()
 
     # Close input window. Eventually will need to pass all file data to next "module"
     def confirmElementSelection(self):
@@ -141,5 +138,4 @@ class InputSelectorWindow(QWidget):
     # Section: 1
     # Offset: X 20.0mm OR X1120.00mm
     # For calibration:
-    # Hole, Core, Type, Section, Offset (mm), 
-    # 
+    # Hole, Core Type, Section, Offset (mm), 

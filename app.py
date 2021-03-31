@@ -15,7 +15,6 @@ class QIComboBox(QtWidgets.QComboBox):
     def __init__(self,parent=None):
         super(QIComboBox, self).__init__(parent)
 
-
 class MacWizard(QtWidgets.QWizard):
     def __init__(self, parent=None):
         super(MacWizard, self).__init__(parent)
@@ -108,7 +107,7 @@ class MacWizard(QtWidgets.QWizard):
         print("Cancelled")
 
     def backClicked(self):
-        print("DAK IS BACK")
+        print("back")
 
 class Page2(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
