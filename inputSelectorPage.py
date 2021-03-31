@@ -50,6 +50,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             res = dialog.getOpenFileName(self, 'Open file', '',"Csv files (*.csv)")
             if(res[0]):
                 self.XRFInput.insertItem(1, res[0])
+                self.isFileVaid()
         else:
             self.XRFInput.takeItem(self.XRFInput.currentRow())
         self.XRFInput.clearSelection()
@@ -67,12 +68,28 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             items = self.calibrationInput.selectedItems()
             value = [i.text() for i in list(items)]
             self.calibrationInput.takeItem(0)
+            self.isFileVaid()
         self.calibrationInput.clearSelection()
 
-    # Close input window. Eventually will need to pass all file data to next "module"
-    def confirmElementSelection(self):
-        print("Next Window")
-        self.close()
+
+    def isFileVaid(self):
+        print("check if file has info we need")
+        missingFields = ["name","core","cooter"]
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText("Uploaded file is missing the following column headers: ")
+        add = ""
+        for i in range(0,len(missingFields)):
+            add += missingFields[i] + ", "
+        msg.setInformativeText(add)
+        msg.setWindowTitle("Error: Missing Values")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.buttonClicked.connect(self.msgbtn)
+        msg.exec_()
+
+    def msgbtn(self, i):
+        print("Button pressed: " + i.text())
+
 
     # Example file browser
     # dialog = QFileDialog
