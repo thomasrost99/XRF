@@ -12,7 +12,7 @@ import re
 import app
 
 # Dummy data initialize to empty list '[]' later
-elementsToDisplay = ["K", "Ca", "Haydenisadumbcooter"]
+elementsToDisplay = ["K", "Ca", "Au"]
 # **IMPORTANT** When the time comes to populate this list with acutal data you
 # must have the line "global elementsToDisplay" in the local scope before
 # populating the list. Otherwise a new variable will be created in that scope with
