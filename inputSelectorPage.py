@@ -12,7 +12,7 @@ import re
 import app
 
 # Dummy data initialize to empty list '[]' later
-elementsToDisplay = ["K", "Ca", "Au"]
+elementsToDisplay = ["K", "Ca", "Haydenisadumbcooter"]
 # **IMPORTANT** When the time comes to populate this list with acutal data you
 # must have the line "global elementsToDisplay" in the local scope before
 # populating the list. Otherwise a new variable will be created in that scope with
@@ -183,29 +183,22 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                 return header
         return "null"
 
-
-
     def msgbtn(self, i):
         if(i.text()=="Retry"):
             print("Enter Info")
 
         print("Button pressed: " + i.text())
 
-    # Close input window. Eventually will need to pass all file data to next "module"
-    def testInputParse(self):
-        print("Testing Input Parsing")
-        print(self.XRFInput.item(1).text())
-        file = open(self.XRFInput.item(1).text() ,'r')
-
     # goes through list of elements, so will not check for multiple headers with same beginning element in name
     def makeInputFileIdeal(self, filename):
         # Loop through elements, add valid columns to idealInput
+        print("FUCK YOU ROB YOU DIRTY WHOORE")
         count = 0
         for element in elements:
             # Figure out if element column is present in file. Temp consists of Object (or none) and column index (or -1)
             temp = self.isElementInFile(element, filename)
+            print(temp)
             if temp[0]:
-                print(temp[0])
                 df = pd.read_csv(filename, usecols = [temp[1]])      
                 app.dictMaster[filename].update(df.to_dict(orient='list'))
                 app.dictMaster[filename][element] = app.dictMaster[filename].pop(temp[0])
@@ -218,33 +211,11 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         headerRow = next(reader)
         for index, header in enumerate(headerRow):
             if "std" not in header.lower():
-                if re.search(element+'([0-9]|-|_|\s).*', header.strip()):
+                if re.search(element+'([0-9]|-|_|\s).*', header.strip()[:3]):
+                    file.close()
+                    return header, index
+                if header == element:
                     file.close()
                     return header, index
         file.close()
         return None, -1
-
-    # Example file browser
-    # dialog = QFileDialog
-    # res = dialog.getOpenFileName(self, 'Open file', 'c:\\Users\\thoma\\Downloads',"Csv files (*.csv)")
-    # file = open(res[0] ,'r')
-    # reader = csv.reader(file)
-    # line_count = 0
-    # for row in reader:
-    #    print(row[5])
-    #    line_count += 1
-    # file.close()
-    # print(res[0])
-
-    # Data we need from csv files:
-    # For primary key:
-    # Spectrum column will need to be broken down into
-    # 374-U1524A-1H-1-A_SHLF9353571 X  20.0mm
-    # Expedition: 374
-    # SiteID: U1524A
-    # Hole: 1
-    # Core Type: H
-    # Section: 1
-    # Offset: X 20.0mm OR X1120.00mm
-    # For calibration:
-    # Hole, Core Type, Section, Offset (mm),
