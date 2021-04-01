@@ -12,6 +12,9 @@ from optionsPage import *
 from graphPage import *
 from qt_material import apply_stylesheet
 
+dictMaster = {}
+conDict = {}
+
 class QIComboBox(QtWidgets.QComboBox):
     def __init__(self,parent=None):
         super(QIComboBox, self).__init__(parent)
