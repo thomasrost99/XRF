@@ -56,9 +56,9 @@ class GraphPage(QtWidgets.QWizardPage):
         pdf = matplotlib.backends.backend_pdf.PdfPages("output.pdf")
 
         ## Reading Files
-        conc = pd.ExcelFile("Input_Files/Concentration/U1456_concentrations.xlsx").parse()
-        scanner_a = pd.ExcelFile("Input_Files/XRF/U1456A_10kV.xlsx").parse()
-        scanner_c = pd.ExcelFile("Input_Files/XRF/U1456C_10kV.xlsx").parse()
+        conc = pd.ExcelFile("Input_Files/Concentration/XLSX/U1456_concentrations.xlsx").parse()
+        scanner_a = pd.ExcelFile("Input_Files/XRF/XLSX/U1456A_10kV.xlsx").parse()
+        scanner_c = pd.ExcelFile("Input_Files/XRF/XLSX/U1456C_10kV.xlsx").parse()
 
         ## Calculating Log Ratios for both files
         conc['K/Ca'] = np.log(conc['K']/conc['Ca'])
