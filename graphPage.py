@@ -18,6 +18,7 @@ import matplotlib.backends.backend_pdf
 from app import *
 from os import listdir
 from os.path import isfile, join
+import elementSelectorPage
 
 
 
@@ -41,17 +42,17 @@ class GraphPage(QtWidgets.QWizardPage):
         self.setLayout(self.layout)
 
         self.onlyfiles = []
+        self.elements = []
+
 
         #-----------------------------------------------------------------------------------------
 
 
     def initializePage(self):
+        # This list contains the elements that were selected on elementSelectorPage
+        self.elements = elementSelectorPage.elementsToGraph
+        print(self.elements)
         print("Making Graphs")
-
-        #global XRFFiles
-        #global ConFiles
-        #print(ConFiles)
-
         pdf = matplotlib.backends.backend_pdf.PdfPages("output.pdf")
 
         ## Reading Files
