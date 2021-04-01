@@ -1,14 +1,21 @@
 import sys
 import random
+import csv
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from random import randint
-#import openpyxl
+from elements import *
 import pandas as pd
-import csv
+import re
 
+# Dummy data initialize to empty list '[]' later
+elementsToDisplay = ["K", "Ca", "Au"]
+# **IMPORTANT** When the time comes to populate this list with acutal data you
+# must have the line "global elementsToDisplay" in the local scope before
+# populating the list. Otherwise a new variable will be created in that scope with
+# the same name and the data will not be transfered between pages.
 
 class InputSelectorPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -45,7 +52,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
         # Add the test parse button across bottom of both columns
         nextButton = QPushButton("Test File Parsing")
-        nextButton.clicked.connect(self.testInputParse)
+        nextButton.clicked.connect(self.makeInputFileIdeal)
         layout.addWidget(nextButton, 3, 0, 1, 2)
 
         layout.setVerticalSpacing(10)
@@ -56,7 +63,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def XRFClicked(self, qmodelindex):
         if(self.XRFInput.currentItem().text() == "Add an XRF file"):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', '',"Csv files (*.csv)")
+            res = dialog.getOpenFileName(self, 'Open file', '',"XRF files (*.csv, *.xlsx)")
             if(res[0]):
                 duplicate = 0
                 for i in range(self.XRFInput.count()):
@@ -74,7 +81,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def ConClicked(self, qmodelindex):
         if(self.conInput.currentItem().text() == "Add a Concentration file"):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', '',"Csv files (*.csv)")
+            res = dialog.getOpenFileName(self, 'Open file', '',"Calibration files (*.csv, *.xlsx)")
             if(res[0]):
                 duplicate = 0
                 for i in range(self.conInput.count()):
@@ -86,6 +93,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         else:
             self.conInput.takeItem(self.conInput.currentRow())
         self.conInput.clearSelection()
+
 
     def createFileErrorMsgBox(self, missingFields):
         msg = QMessageBox()
@@ -168,30 +176,53 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         print("Testing Input Parsing")
         print(self.XRFInput.item(1).text())
         file = open(self.XRFInput.item(1).text() ,'r')
+
+    # goes through list of elements, so will not check for multiple headers with same beginning element in name
+    def makeInputFileIdeal(self, filename):
+        idealInput = []
+        idealInput.append([])
+        with open("Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1) - temp.csv", 'w') as f:
+            writer = csv.writer(f)
+            for element in elements:
+                temp = self.isElementInFile(element,"Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1).csv")
+                if temp[0]:
+                    idealInput[0].append(temp[0])
+                    df = pd.read_csv("Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1).csv", usecols = [temp[1]])
+                    # print(df)
+
+
+            print(len(idealInput[0]))
+            print(idealInput)
+            # writer.writerow(idealInpp)
+            # writer.writerow(['test 1'])
+            # writer.writerow(["test 2"])
+            # f.seek(0)
+            # writer.writerow(["test 3"])
+
+
+    def isElementInFile(self, element, fileName):
+        file = open(fileName ,'r')
         reader = csv.reader(file)
-        line_count = 0
-        # print(reader.__next__())
-        reader.__next__()
-        spectrum = reader.__next__()[0]
-        print("Not parsed", spectrum)
-        testOut = spectrum.replace('-', ' ').split(' ')
-        print(testOut)
-        sectionCoreType = testOut[2]
-        section, coreType = list(testOut[2])
-        print(testOut)
-        print(section)
-        print(coreType)
-        testOut[2] = section
-        testOut.insert(3,coreType)
-        print(testOut)
-
-        # Split up index 2
-
-
-        # for row in reader:
-        #     print(row[5])
-        #     line_count += 1
+        headerRow = next(reader)
+        for index, header in enumerate(headerRow):
+            if "std" not in header.lower():
+                if re.search(element+'([0-9]|-|_|\s).*', header.strip()):
+                    file.close()
+                    return element, index
         file.close()
+        return None, -1
+
+    # Example file browser
+    # dialog = QFileDialog
+    # res = dialog.getOpenFileName(self, 'Open file', 'c:\\Users\\thoma\\Downloads',"Csv files (*.csv)")
+    # file = open(res[0] ,'r')
+    # reader = csv.reader(file)
+    # line_count = 0
+    # for row in reader:
+    #    print(row[5])
+    #    line_count += 1
+    # file.close()
+    # print(res[0])
 
     # Data we need from csv files:
     # For primary key:

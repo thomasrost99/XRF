@@ -1,2 +1,5 @@
 PyQt5
 qt-material
+pandas
+matplotlib
+sklearn
