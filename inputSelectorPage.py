@@ -191,6 +191,17 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         app.conDict[fname] = file.to_dict(orient='list')
         print("\n\n\n\nHayden conDict: ", app.conDict)
 
+        count = 0
+        for element in elements:
+            # Figure out if element column is present in file. Temp consists of Object (or none) and column index (or -1)
+            temp = self.isElementInFile(element, fname)
+            #print(temp)
+            if temp[0]:
+                df = pd.read_csv(fname, usecols = [temp[1]])
+                app.conDict[fname].update(df.to_dict(orient='list'))
+                app.conDict[fname][element] = app.conDict[fname].pop(temp[0])
+        print("\n\n\n\nTommy conDict: ", app.conDict)
+
     def isHeaderInFile(self, key, fileName):
         file = open(fileName ,'r')
         reader = csv.reader(file)
