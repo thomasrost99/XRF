@@ -18,9 +18,6 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
 
         self.listwidget = QListWidget()
         self.listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
-        # for i in range(1,70):
-        #     self.listwidget.insertItem(i, str(i))
-
         self.listwidget.clicked.connect(self.clicked)
         layout.addWidget(self.listwidget)
 
@@ -37,8 +34,7 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
         print(elementsToGraph)
 
     def initializePage(self):
-        temp = inputSelectorPage.elementsToDisplay
-        temp.sort()
+        temp = sorted(set(inputSelectorPage.elementsToDisplay))
         num = 1
         for element in temp:
             self.listwidget.insertItem(num, str(element))

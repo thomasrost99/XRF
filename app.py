@@ -28,6 +28,9 @@ class MacWizard(QtWidgets.QWizard):
         #apply_stylesheet(app, theme='dark_blue.xml')
         self.setWizardStyle(1)
 
+        #maybe dont need
+        self.setOption(QWizard.IndependentPages, False)
+        
         # Define screen size
         global screenHeight, screenWidth
         screenHeight = app.primaryScreen().size().height()
