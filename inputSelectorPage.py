@@ -203,10 +203,10 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         count = 0
         for element in elements:
             # Figure out if element column is present in file. Temp consists of Object (or none) and column index (or -1)
-            temp = self.isElementInFile(element,"Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1).csv")
+            temp = self.isElementInFile(element, filename)
             if temp[0]:
                 print(temp[0])
-                df = pd.read_csv("Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1).csv", usecols = [temp[1]])      
+                df = pd.read_csv(filename, usecols = [temp[1]])      
                 app.dictMaster[filename].update(df.to_dict(orient='list'))
                 app.dictMaster[filename][element] = app.dictMaster[filename].pop(temp[0])
 
