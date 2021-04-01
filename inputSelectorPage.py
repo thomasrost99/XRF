@@ -9,6 +9,7 @@ from random import randint
 from elements import *
 import pandas as pd
 import re
+import app
 
 # Dummy data initialize to empty list '[]' later
 elementsToDisplay = ["K", "Ca", "Au"]
@@ -51,9 +52,9 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         layout.addWidget(self.conInput, 1, 1)
 
         # Add the test parse button across bottom of both columns
-        nextButton = QPushButton("Test File Parsing")
-        nextButton.clicked.connect(self.makeInputFileIdeal)
-        layout.addWidget(nextButton, 3, 0, 1, 2)
+        # nextButton = QPushButton("Test File Parsing")
+        # nextButton.clicked.connect(self.makeInputFileIdeal)
+        # layout.addWidget(nextButton, 3, 0, 1, 2)
 
         layout.setVerticalSpacing(10)
         self.setLayout(layout)
@@ -70,8 +71,10 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                     if(res[0] == self.XRFInput.item(i).text()):
                         duplicate = 1
                 if not duplicate:
-                    self.XRFInput.insertItem(1, res[0])
-                    self.isFileValid("XRF")
+                    if self.isFileValid("XRF", res[0]):
+                        self.XRFInput.insertItem(1, res[0])
+                        self.addToDictMaster(res[0])
+                        self.makeInputFileIdeal(res[0])
         else:
             self.XRFInput.takeItem(self.XRFInput.currentRow())
         self.XRFInput.clearSelection()
@@ -88,8 +91,10 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                     if(res[0] == self.conInput.item(i).text()):
                         duplicate = 1
                 if not duplicate:
-                    self.conInput.insertItem(1, res[0])
-                    self.isFileValid("Concentration")
+                    if self.isFileValid("Concentration", res[0]):
+                        self.conInput.insertItem(1, res[0])
+                        self.addToDictMaster(res[0])
+                        self.makeInputFileIdeal(res[0])
         else:
             self.conInput.takeItem(self.conInput.currentRow())
         self.conInput.clearSelection()
@@ -118,20 +123,11 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
         return columns
 
-    def isFileValid(self, key):
+    def isFileValid(self, key, filename):
         valid = True
         print("check if file has info we need")
         missingFields = []
         neededData = ["Site","Hole","Core", "Type","Section","Interval"]
-
-        #concentration file validation
-        if(key=="Concentration"):
-            filename = self.conInput.item(1).text()
-        #XRF file validation
-        elif(key=="XRF"):
-            filename = self.XRFInput.item(1).text()
-        else:
-            valid = False
 
         print("File: ", filename)
         file = open(filename , 'r')
@@ -149,26 +145,19 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                 missingFields.append(i)
 
         #-----------TODO--------add check for valid element
-        masterDick = {}
         #Were they missing something?
         if(len(missingFields)>0):
             valid = False
 
         if(not valid):
-            if(key=="XRF"):
-                self.XRFInput.takeItem(1)
-            elif(key=="Concentration"):
-                self.conInput.takeItem(1)
             self.createFileErrorMsgBox(missingFields)
+            #remove file from list
         else:
-            #add to dict
-            masterDick[filename] = {}
-            self.addToDictMaster(filename)
-        return
+            return 1
+        return 0
 
     def addToDictMaster(self, fname):
-        masterDick = {}
-        masterDick[fname] = {}
+        app.dictMaster[fname] = {}
         neededData = ["Site","Hole","Core","Section"]
         #check for near match of interval and core type
 
@@ -181,8 +170,9 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         print(neededData)
 
         file = pd.read_csv(fname, usecols = neededData)
-        print("Dick: ", masterDick)
-        print(file)
+        app.dictMaster[fname] = file.to_dict(orient='list')
+        # print("Dict: ", app.dictMaster)
+        # print(file)
 
     def isHeaderInFile(self, key, fileName):
         file = open(fileName ,'r')
@@ -209,26 +199,18 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
     # goes through list of elements, so will not check for multiple headers with same beginning element in name
     def makeInputFileIdeal(self, filename):
-        idealInput = []
-        idealInput.append([])
-        with open("Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1) - temp.csv", 'w') as f:
-            writer = csv.writer(f)
-            for element in elements:
-                temp = self.isElementInFile(element,"Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1).csv")
-                if temp[0]:
-                    idealInput[0].append(temp[0])
-                    df = pd.read_csv("Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1).csv", usecols = [temp[1]])
-                    # print(df)
+        # Loop through elements, add valid columns to idealInput
+        count = 0
+        for element in elements:
+            # Figure out if element column is present in file. Temp consists of Object (or none) and column index (or -1)
+            temp = self.isElementInFile(element, filename)
+            if temp[0]:
+                print(temp[0])
+                df = pd.read_csv(filename, usecols = [temp[1]])      
+                app.dictMaster[filename].update(df.to_dict(orient='list'))
+                app.dictMaster[filename][element] = app.dictMaster[filename].pop(temp[0])
 
-
-            print(len(idealInput[0]))
-            print(idealInput)
-            # writer.writerow(idealInpp)
-            # writer.writerow(['test 1'])
-            # writer.writerow(["test 2"])
-            # f.seek(0)
-            # writer.writerow(["test 3"])
-
+        print(app.dictMaster)
 
     def isElementInFile(self, element, fileName):
         file = open(fileName ,'r')
@@ -238,7 +220,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             if "std" not in header.lower():
                 if re.search(element+'([0-9]|-|_|\s).*', header.strip()):
                     file.close()
-                    return element, index
+                    return header, index
         file.close()
         return None, -1
 
