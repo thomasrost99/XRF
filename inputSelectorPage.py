@@ -209,7 +209,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     # goes through list of elements, so will not check for multiple headers with same beginning element in name
     def makeInputFileIdeal(self, filename):
         # Loop through elements, add valid columns to idealInput
-        print("FUCK YOU ROB YOU DIRTY WHOORE")
         count = 0
         for element in elements:
             # Figure out if element column is present in file. Temp consists of Object (or none) and column index (or -1)
