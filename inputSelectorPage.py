@@ -63,7 +63,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def XRFClicked(self, qmodelindex):
         if(self.XRFInput.currentItem().text() == "Add an XRF file"):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', '',"XRF files (*.csv, *.xlsx)")
+            res = dialog.getOpenFileName(self, 'Open file', '',"XRF files (*.csv)")
             if(res[0]):
                 duplicate = 0
                 for i in range(self.XRFInput.count()):
@@ -81,7 +81,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def ConClicked(self, qmodelindex):
         if(self.conInput.currentItem().text() == "Add a Concentration file"):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', '',"Calibration files (*.csv, *.xlsx)")
+            res = dialog.getOpenFileName(self, 'Open file', '',"Calibration files (*.csv)")
             if(res[0]):
                 duplicate = 0
                 for i in range(self.conInput.count()):
@@ -99,7 +99,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
         msg.setText("Update the file to include the headers listed below:")
-        msg.setInformativeText('\n'.join(missingFields))
+        msg.setInformativeText(', '.join(missingFields))
         #detailed = "Missing Headers:\n" + '\n'.join(missingFields)
         #msg.setDetailedText(detailed)
         msg.setWindowTitle("Error: Missing Values")
