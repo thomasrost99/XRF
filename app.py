@@ -30,7 +30,7 @@ class MacWizard(QtWidgets.QWizard):
 
         #maybe dont need
         self.setOption(QWizard.IndependentPages, False)
-        
+
         # Define screen size
         global screenHeight, screenWidth
         screenHeight = app.primaryScreen().size().height()
@@ -91,21 +91,21 @@ class MacWizard(QtWidgets.QWizard):
 
         #look into using this to prevent moving onto next page
     def isComplete(self):
-        print("complete")
+        #print("complete")
         return False
         #emit.completeChanged
 
     def nextClicked(self):
         #print(QWizard.currentPage(self))
-        print(QWizard.currentId(self))
+        #print(QWizard.currentId(self))
         pageID = QWizard.currentId(self)
         self.isComplete()
-        if((pageID - 1) == inputPageID):
+        #if((pageID - 1) == inputPageID):
 
-            print("Check that input is right then advance")
-        elif((pageID - 1) == elementPageID):
-            self.lockButton('back')
-            print("Verify elements selected are valid then advance")
+            #print("Check that input is right then advance")
+        #elif((pageID - 1) == elementPageID):
+            #self.lockButton('back')
+            #print("Verify elements selected are valid then advance")
         #print(self.elementPage.selectedElements)
 
     def finishClicked(self):

@@ -36,6 +36,7 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
     def initializePage(self):
         temp = sorted(set(inputSelectorPage.elementsToDisplay))
         num = 1
+        print("-----BUG----\nThis list can have odd functionality")
         for element in temp:
             self.listwidget.insertItem(num, str(element))
             num = num + 1

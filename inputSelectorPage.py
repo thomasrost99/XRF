@@ -54,6 +54,8 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         layout.setVerticalSpacing(10)
         self.setLayout(layout)
 
+        print("---BUG---\nRemove <NMG or other non numeric characters from element lists")
+
     #BROKEN reset elementsToDisplay when creating the page
     def initializePage(self):
         global elementsToDisplay
