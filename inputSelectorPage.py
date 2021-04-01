@@ -76,7 +76,10 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                         self.addToDictMaster(res[0])
                         self.makeInputFileIdeal(res[0])
         else:
+            app.dictMaster.pop(self.XRFInput.currentItem().text())
             self.XRFInput.takeItem(self.XRFInput.currentRow())
+            print("Removed Item from Dict Master",app.dictMaster)
+
         self.XRFInput.clearSelection()
 
     # If "add" item is clicked in Concentration input, choose a new csv file to add to the list. If any other list item is clicked,
@@ -93,10 +96,12 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                 if not duplicate:
                     if self.isFileValid("Concentration", res[0]):
                         self.conInput.insertItem(1, res[0])
-                        self.addToDictMaster(res[0])
-                        self.makeInputFileIdeal(res[0])
+                        self.addToConDict(res[0])
+                        #self.makeInputFileIdeal(res[0])
         else:
+            app.conDict.pop(self.conInput.currentItem().text())
             self.conInput.takeItem(self.conInput.currentRow())
+            print("Removed Item from conDict",app.conDict)
         self.conInput.clearSelection()
 
 
@@ -105,8 +110,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         msg.setIcon(QMessageBox.Critical)
         msg.setText("Update the file to include the headers listed below:")
         msg.setInformativeText(', '.join(missingFields))
-        #detailed = "Missing Headers:\n" + '\n'.join(missingFields)
-        #msg.setDetailedText(detailed)
         msg.setWindowTitle("Error: Missing Values")
         msg.setStandardButtons(QMessageBox.Cancel)
         msg.buttonClicked.connect(self.msgbtn)
@@ -133,8 +136,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         file = open(filename , 'r')
         reader = csv.DictReader(file)
         dict_from_csv = dict(list(reader)[0])
-        #fullDict = dict(reader)
-
         columns = list(dict_from_csv.keys())
         columns = self.unifyHeaderNames(columns)
         #print("Columns ", columns)
@@ -144,14 +145,12 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             if(not (i in columns)):
                 missingFields.append(i)
 
-        #-----------TODO--------add check for valid element
         #Were they missing something?
         if(len(missingFields)>0):
             valid = False
 
         if(not valid):
             self.createFileErrorMsgBox(missingFields)
-            #remove file from list
         else:
             return 1
         return 0
@@ -171,8 +170,26 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
         file = pd.read_csv(fname, usecols = neededData)
         app.dictMaster[fname] = file.to_dict(orient='list')
-        # print("Dict: ", app.dictMaster)
+        print("\n\n\n\nHayden Dict: ", app.dictMaster)
         # print(file)
+
+    def addToConDict(self, fname):
+        app.conDict[fname] = {}
+        neededData = ["Site","Hole","Core","Section"]
+
+        #check for near match of interval and core type
+        vals = self.isHeaderInFile("Type",fname)
+        if(vals!="null"):
+            neededData.append(vals)
+
+        vals = self.isHeaderInFile("Interval",fname)
+        if(vals!="null"):
+            neededData.append(vals)
+        #print(neededData)
+
+        file = pd.read_csv(fname, usecols = neededData)
+        app.conDict[fname] = file.to_dict(orient='list')
+        print("\n\n\n\nHayden conDict: ", app.conDict)
 
     def isHeaderInFile(self, key, fileName):
         file = open(fileName ,'r')
@@ -206,7 +223,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             temp = self.isElementInFile(element, filename)
             if temp[0]:
                 print(temp[0])
-                df = pd.read_csv(filename, usecols = [temp[1]])      
+                df = pd.read_csv(filename, usecols = [temp[1]])
                 app.dictMaster[filename].update(df.to_dict(orient='list'))
                 app.dictMaster[filename][element] = app.dictMaster[filename].pop(temp[0])
 
