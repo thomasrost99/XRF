@@ -63,7 +63,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def XRFClicked(self, qmodelindex):
         if(self.XRFInput.currentItem().text() == "Add an XRF file"):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', '',"XRF files (*.csv, *.xlsx)")
+            res = dialog.getOpenFileName(self, 'Open file', '',"XRF files (*.csv)")
             if(res[0]):
                 duplicate = 0
                 for i in range(self.XRFInput.count()):
@@ -71,6 +71,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                         duplicate = 1
                 if not duplicate:
                     self.XRFInput.insertItem(1, res[0])
+                    self.isFileVaid("XRF")
         else:
             self.XRFInput.takeItem(self.XRFInput.currentRow())
         self.XRFInput.clearSelection()
@@ -80,7 +81,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def ConClicked(self, qmodelindex):
         if(self.conInput.currentItem().text() == "Add a Concentration file"):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', '',"Calibration files (*.csv, *.xlsx)")
+            res = dialog.getOpenFileName(self, 'Open file', '',"Calibration files (*.csv)")
             if(res[0]):
                 duplicate = 0
                 for i in range(self.conInput.count()):
@@ -88,9 +89,93 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                         duplicate = 1
                 if not duplicate:
                     self.conInput.insertItem(1, res[0])
+                    self.isFileVaid("Concentration")
         else:
             self.conInput.takeItem(self.conInput.currentRow())
         self.conInput.clearSelection()
+
+
+    def createFileErrorMsgBox(self, missingFields):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText("Update the file to include the headers listed below:")
+        msg.setInformativeText(', '.join(missingFields))
+        #detailed = "Missing Headers:\n" + '\n'.join(missingFields)
+        #msg.setDetailedText(detailed)
+        msg.setWindowTitle("Error: Missing Values")
+        msg.setStandardButtons(QMessageBox.Cancel)
+        msg.buttonClicked.connect(self.msgbtn)
+        msg.exec_()
+
+    def unifyHeaderNames(self, columns):
+        #replace some variations on important names
+        if("Core Type" in columns):
+            columns[columns.index("Core Type")] = "Type"
+        for header in columns:
+            if("Interval" in header):
+                columns[columns.index(header)] = "Interval"
+                break
+
+        return columns
+
+    def isFileVaid(self, key):
+        valid = True
+        print("check if file has info we need")
+        missingFields = []
+        neededData = ["Site","Hole","Core", "Type","Section","Interval"]
+
+        #concentration file validation
+        if(key=="Concentration"):
+            filename = self.conInput.item(1).text()
+        #XRF file validation
+        elif(key=="XRF"):
+            filename = self.XRFInput.item(1).text()
+        else:
+            valid = False
+
+        print("File: ", filename)
+        file = open(filename , 'r')
+        reader = csv.DictReader(file)
+        dict_from_csv = dict(list(reader)[0])
+        columns = list(dict_from_csv.keys())
+        columns = self.unifyHeaderNames(columns)
+        print("Columns ", columns)
+
+        # columns = parse itrax, parse avaa
+        #concentrations and U files already are good
+
+        #does it have all the data we need? what data is it missing?
+        for i in neededData:
+            if(not (i in columns)):
+                missingFields.append(i)
+
+        #-----------TODO--------add check for valid element
+
+        #Were they missing something?
+        if(len(missingFields)>0):
+            valid = False
+
+        if(not valid):
+            if(key=="XRF"):
+                self.XRFInput.takeItem(1)
+            elif(key=="Concentration"):
+                self.conInput.takeItem(1)
+            self.createFileErrorMsgBox(missingFields)
+            #remove file from list
+        return
+
+
+    def msgbtn(self, i):
+        if(i.text()=="Retry"):
+            print("Enter Info")
+
+        print("Button pressed: " + i.text())
+
+    # Close input window. Eventually will need to pass all file data to next "module"
+    def testInputParse(self):
+        print("Testing Input Parsing")
+        print(self.XRFInput.item(1).text())
+        file = open(self.XRFInput.item(1).text() ,'r')
 
     # goes through list of elements, so will not check for multiple headers with same beginning element in name
     def makeInputFileIdeal(self, filename):
@@ -105,7 +190,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                     df = pd.read_csv("Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1).csv", usecols = [temp[1]])
                     # print(df)
 
-            
+
             print(len(idealInput[0]))
             print(idealInput)
             # writer.writerow(idealInpp)
@@ -114,7 +199,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             # f.seek(0)
             # writer.writerow(["test 3"])
 
-    
+
     def isElementInFile(self, element, fileName):
         file = open(fileName ,'r')
         reader = csv.reader(file)

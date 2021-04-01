@@ -89,8 +89,6 @@ class MacWizard(QtWidgets.QWizard):
         return False
         #emit.completeChanged
 
-
-
     def nextClicked(self):
         #print(QWizard.currentPage(self))
         print(QWizard.currentId(self))
