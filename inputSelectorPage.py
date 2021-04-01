@@ -71,7 +71,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                         duplicate = 1
                 if not duplicate:
                     self.XRFInput.insertItem(1, res[0])
-                    self.isFileVaid("XRF")
+                    self.isFileValid("XRF")
         else:
             self.XRFInput.takeItem(self.XRFInput.currentRow())
         self.XRFInput.clearSelection()
@@ -89,7 +89,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                         duplicate = 1
                 if not duplicate:
                     self.conInput.insertItem(1, res[0])
-                    self.isFileVaid("Concentration")
+                    self.isFileValid("Concentration")
         else:
             self.conInput.takeItem(self.conInput.currentRow())
         self.conInput.clearSelection()
@@ -118,7 +118,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
         return columns
 
-    def isFileVaid(self, key):
+    def isFileValid(self, key):
         valid = True
         print("check if file has info we need")
         missingFields = []
@@ -137,12 +137,11 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         file = open(filename , 'r')
         reader = csv.DictReader(file)
         dict_from_csv = dict(list(reader)[0])
+        #fullDict = dict(reader)
+
         columns = list(dict_from_csv.keys())
         columns = self.unifyHeaderNames(columns)
-        print("Columns ", columns)
-
-        # columns = parse itrax, parse avaa
-        #concentrations and U files already are good
+        #print("Columns ", columns)
 
         #does it have all the data we need? what data is it missing?
         for i in neededData:
@@ -150,7 +149,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                 missingFields.append(i)
 
         #-----------TODO--------add check for valid element
-
+        masterDick = {}
         #Were they missing something?
         if(len(missingFields)>0):
             valid = False
@@ -161,8 +160,39 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             elif(key=="Concentration"):
                 self.conInput.takeItem(1)
             self.createFileErrorMsgBox(missingFields)
-            #remove file from list
+        else:
+            #add to dict
+            masterDick[filename] = {}
+            self.addToDictMaster(filename)
         return
+
+    def addToDictMaster(self, fname):
+        masterDick = {}
+        masterDick[fname] = {}
+        neededData = ["Site","Hole","Core","Section"]
+        #check for near match of interval and core type
+
+        vals = self.isHeaderInFile("Type",fname)
+        if(vals!="null"):
+            neededData.append(vals)
+        vals = self.isHeaderInFile("Interval",fname)
+        if(vals!="null"):
+            neededData.append(vals)
+        print(neededData)
+
+        file = pd.read_csv(fname, usecols = neededData)
+        print("Dick: ", masterDick)
+        print(file)
+
+    def isHeaderInFile(self, key, fileName):
+        file = open(fileName ,'r')
+        reader = csv.reader(file)
+        headerRow = list(reader)[0]
+        for header in headerRow:
+            if(key in header):
+                return header
+        return "null"
+
 
 
     def msgbtn(self, i):
