@@ -12,7 +12,7 @@ import re
 import app
 
 # Dummy data initialize to empty list '[]' later
-elementsToDisplay = ["K", "Ca", "Au"]
+elementsToDisplay = []
 # **IMPORTANT** When the time comes to populate this list with acutal data you
 # must have the line "global elementsToDisplay" in the local scope before
 # populating the list. Otherwise a new variable will be created in that scope with
@@ -59,6 +59,10 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         layout.setVerticalSpacing(10)
         self.setLayout(layout)
 
+    def initializePage(self):
+        global elementsToDisplay
+        elementsToDisplay = []
+
     # If "add" item is clicked in XRF input, choose a new csv file to add to the list. If any other list item is clicked,
     # it should be removed.
     def XRFClicked(self, qmodelindex):
@@ -78,7 +82,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         else:
             app.dictMaster.pop(self.XRFInput.currentItem().text())
             self.XRFInput.takeItem(self.XRFInput.currentRow())
-            print("Removed Item from Dict Master",app.dictMaster)
+            #print("Removed Item from Dict Master",app.dictMaster)
 
         self.XRFInput.clearSelection()
 
@@ -101,7 +105,9 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         else:
             app.conDict.pop(self.conInput.currentItem().text())
             self.conInput.takeItem(self.conInput.currentRow())
-            print("Removed Item from conDict",app.conDict)
+            global elementsToDisplay
+            elementsToDisplay = []
+            #print("Removed Item from conDict",app.conDict)
         self.conInput.clearSelection()
 
 
@@ -128,11 +134,11 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
     def isFileValid(self, key, filename):
         valid = True
-        print("check if file has info we need")
+        #print("check if file has info we need")
         missingFields = []
         neededData = ["Site","Hole","Core", "Type","Section","Interval"]
 
-        print("File: ", filename)
+        #print("File: ", filename)
         file = open(filename , 'r')
         reader = csv.DictReader(file)
         dict_from_csv = dict(list(reader)[0])
@@ -166,11 +172,11 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         vals = self.isHeaderInFile("Interval",fname)
         if(vals!="null"):
             neededData.append(vals)
-        print(neededData)
+        #print(neededData)
 
         file = pd.read_csv(fname, usecols = neededData)
         app.dictMaster[fname] = file.to_dict(orient='list')
-        print("\n\n\n\nHayden Dict: ", app.dictMaster)
+        #print("\n\n\n\nHayden Dict: ", app.dictMaster)
         # print(file)
 
     def addToConDict(self, fname):
@@ -189,7 +195,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
         file = pd.read_csv(fname, usecols = neededData)
         app.conDict[fname] = file.to_dict(orient='list')
-        print("\n\n\n\nHayden conDict: ", app.conDict)
+        #print("\n\n\n\nHayden conDict: ", app.conDict)
 
         count = 0
         for element in elements:
@@ -197,10 +203,12 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             temp = self.isElementInFile(element, fname)
             #print(temp)
             if temp[0]:
+                global elementsToDisplay
+                elementsToDisplay.append(temp[0])
                 df = pd.read_csv(fname, usecols = [temp[1]])
                 app.conDict[fname].update(df.to_dict(orient='list'))
                 app.conDict[fname][element] = app.conDict[fname].pop(temp[0])
-        print("\n\n\n\nTommy conDict: ", app.conDict)
+        #print("\n\n\n\nTommy conDict: ", app.conDict)
 
     def isHeaderInFile(self, key, fileName):
         file = open(fileName ,'r')

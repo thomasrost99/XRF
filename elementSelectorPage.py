@@ -38,7 +38,8 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
 
     def initializePage(self):
         temp = inputSelectorPage.elementsToDisplay
+        temp.sort()
         num = 1
         for element in temp:
-            self.listwidget.insertItem(num, element)
+            self.listwidget.insertItem(num, str(element))
             num = num + 1
