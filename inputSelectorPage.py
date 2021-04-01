@@ -90,12 +90,12 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def createFileErrorMsgBox(self, missingFields):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
-        msg.setText("Update the file to include the headers listed below.")
-        msg.setInformativeText("You may select retry to manually upload this information.")
-        detailed = "Missing Headers:\n" + '\n'.join(missingFields)
-        msg.setDetailedText(detailed)
+        msg.setText("Update the file to include the headers listed below:")
+        msg.setInformativeText('\n'.join(missingFields))
+        #detailed = "Missing Headers:\n" + '\n'.join(missingFields)
+        #msg.setDetailedText(detailed)
         msg.setWindowTitle("Error: Missing Values")
-        msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Retry)
+        msg.setStandardButtons(QMessageBox.Cancel)
         msg.buttonClicked.connect(self.msgbtn)
         msg.exec_()
 
@@ -137,9 +137,9 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         #concentrations and U files already are good
 
         #does it have all the data we need? what data is it missing?
-        for key in neededData:
-            if(not (key in columns)):
-                missingFields.append(key)
+        for i in neededData:
+            if(not (i in columns)):
+                missingFields.append(i)
 
         #-----------TODO--------add check for valid element
 
@@ -148,6 +148,10 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             valid = False
 
         if(not valid):
+            if(key=="XRF"):
+                self.XRFInput.takeItem(1)
+            elif(key=="Concentration"):
+                self.conInput.takeItem(1)
             self.createFileErrorMsgBox(missingFields)
             #remove file from list
         return
@@ -155,12 +159,9 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
     def msgbtn(self, i):
         if(i.text()=="Retry"):
-
+            print("Enter Info")
 
         print("Button pressed: " + i.text())
-
-    def manuallyEnterCoreInfo(self, missingFields):
-
 
     # Close input window. Eventually will need to pass all file data to next "module"
     def testInputParse(self):
@@ -191,8 +192,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         #     print(row[5])
         #     line_count += 1
         file.close()
-
-
 
     # Data we need from csv files:
     # For primary key:
