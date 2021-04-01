@@ -10,6 +10,13 @@ from elements import *
 import pandas as pd
 import re
 
+# Dummy data initialize to empty list '[]' later
+elementsToDisplay = ["K", "Ca", "Au"]
+# **IMPORTANT** When the time comes to populate this list with acutal data you
+# must have the line "global elementsToDisplay" in the local scope before
+# populating the list. Otherwise a new variable will be created in that scope with
+# the same name and the data will not be transfered between pages.
+
 class InputSelectorPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super(InputSelectorPage,self).__init__(parent)

@@ -5,6 +5,9 @@ import csv
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+import inputSelectorPage
+
+elementsToGraph = []
 
 class ElementSelectorPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -15,8 +18,8 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
 
         self.listwidget = QListWidget()
         self.listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
-        for i in range(1,70):
-            self.listwidget.insertItem(i, str(i))
+        # for i in range(1,70):
+        #     self.listwidget.insertItem(i, str(i))
 
         self.listwidget.clicked.connect(self.clicked)
         layout.addWidget(self.listwidget)
@@ -28,4 +31,14 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
     def clicked(self, qmodelindex):
         items = self.listwidget.selectedItems()
         self.selectedElements = [i.text() for i in list(items)]
-        #print(self.selectedElements)
+
+        global elementsToGraph
+        elementsToGraph = self.selectedElements
+        print(elementsToGraph)
+
+    def initializePage(self):
+        temp = inputSelectorPage.elementsToDisplay
+        num = 1
+        for element in temp:
+            self.listwidget.insertItem(num, element)
+            num = num + 1
