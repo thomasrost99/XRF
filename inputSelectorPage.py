@@ -73,6 +73,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                 if not duplicate:
                     if self.isFileValid("XRF", res[0]):
                         self.XRFInput.insertItem(1, res[0])
+                        self.addToDictMaster(res[0])
                         self.makeInputFileIdeal(res[0])
         else:
             self.XRFInput.takeItem(self.XRFInput.currentRow())
@@ -92,6 +93,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                 if not duplicate:
                     if self.isFileValid("Concentration", res[0]):
                         self.conInput.insertItem(1, res[0])
+                        self.addToDictMaster(res[0])
                         self.makeInputFileIdeal(res[0])
         else:
             self.conInput.takeItem(self.conInput.currentRow())
@@ -143,7 +145,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                 missingFields.append(i)
 
         #-----------TODO--------add check for valid element
-        masterDick = {}
         #Were they missing something?
         if(len(missingFields)>0):
             valid = False
@@ -156,8 +157,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         return 0
 
     def addToDictMaster(self, fname):
-        masterDick = {}
-        masterDick[fname] = {}
+        app.dictMaster[fname] = {}
         neededData = ["Site","Hole","Core","Section"]
         #check for near match of interval and core type
 
@@ -170,8 +170,9 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         print(neededData)
 
         file = pd.read_csv(fname, usecols = neededData)
-        print("Dick: ", masterDick)
-        print(file)
+        app.dictMaster[fname] = file.to_dict(orient='list')
+        # print("Dict: ", app.dictMaster)
+        # print(file)
 
     def isHeaderInFile(self, key, fileName):
         file = open(fileName ,'r')
@@ -198,19 +199,16 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
     # goes through list of elements, so will not check for multiple headers with same beginning element in name
     def makeInputFileIdeal(self, filename):
-        print("FILENAME:")
-        print(filename)
-        app.dictMaster[filename] = {}
-
         # Loop through elements, add valid columns to idealInput
         count = 0
         for element in elements:
             # Figure out if element column is present in file. Temp consists of Object (or none) and column index (or -1)
             temp = self.isElementInFile(element,"Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1).csv")
             if temp[0]:
-                app.dictMaster[filename][element] = []
-                df = pd.read_csv("Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1).csv", usecols = [temp[1]], skiprows = 1)
-                app.dictMaster[filename][element].append(df)
+                print(temp[0])
+                df = pd.read_csv("Input_Files/XRF/Avaatech_BAxil_v1_30kV.xlsx - Avaatech_BAxil_v1_30kV_raw (1).csv", usecols = [temp[1]])      
+                app.dictMaster[filename].update(df.to_dict(orient='list'))
+                app.dictMaster[filename][element] = app.dictMaster[filename].pop(temp[0])
 
         print(app.dictMaster)
 
@@ -222,7 +220,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             if "std" not in header.lower():
                 if re.search(element+'([0-9]|-|_|\s).*', header.strip()):
                     file.close()
-                    return element, index
+                    return header, index
         file.close()
         return None, -1
 
