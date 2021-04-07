@@ -15,7 +15,7 @@ from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 import matplotlib.backends.backend_pdf
-from app import *
+import app
 from os import listdir
 from os.path import isfile, join
 import elementSelectorPage
@@ -55,68 +55,101 @@ class GraphPage(QtWidgets.QWizardPage):
         print("Making Graphs")
         pdf = matplotlib.backends.backend_pdf.PdfPages("output.pdf")
 
-        ## Reading Files
-        conc = pd.ExcelFile("Input_Files/Concentration/XLSX/U1456_concentrations.xlsx").parse()
-        scanner_a = pd.ExcelFile("Input_Files/XRF/XLSX/U1456A_10kV.xlsx").parse()
-        scanner_c = pd.ExcelFile("Input_Files/XRF/XLSX/U1456C_10kV.xlsx").parse()
+        kV_10_df = pd.DataFrame()
+        kV_30_df = pd.DataFrame()
 
-        ## Calculating Log Ratios for both files
-        conc['K/Ca'] = np.log(conc['K']/conc['Ca'])
-        scanner_a['K/Ca'] = np.log(np.absolute(scanner_a['K_Area']/scanner_a['Ca_Area']))
-        scanner_c['K/Ca'] = np.log(np.absolute(scanner_c['K_Area']/scanner_c['Ca_Area']))
+        for key, value in app.dictMaster.items():
+            if "10kV" in key:
+                temp_df = pd.DataFrame.from_dict(value)
+                kV_10_df = kV_10_df.append(temp_df)
+            else:
+                temp_df = pd.DataFrame.from_dict(value)
+                kV_30_df = kV_30_df.append(temp_df)
+        
+        xrf_data = pd.merge(kV_10_df, kV_30_df,how='outer', on=['Site', 'Hole' ,'Core', 'Core Type', 'Section', "Interval (cm)"])
 
-        ## Finding Equivalent data
-        K_Ca_master = pd.DataFrame(columns = ['Conc', 'Scanner'])
-        for i in conc.index:
-            if conc['Hole'][i] == "A":
-                core_scanner = scanner_a[scanner_a['Core'] == conc['Core'][i]]
-                section_scanner = core_scanner[core_scanner['Section'] == conc['Section'][i]]
-                interval_scanner = section_scanner[section_scanner['Interval (cm)'] == conc['Interval (cm)'][i]]
+        conc_data = pd.DataFrame()
+
+        for key, value in app.conDict.items():
+            temp_df = pd.DataFrame.from_dict(value)
+            conc_data = conc_data.append(temp_df)
+
+        base_elem = "Ca"
+
+        output_data = xrf_data
+
+        dict_for_plots = {}
+
+        for element in self.elements:
+            ## Calculating Log Ratios for both files
+            conc_data[element+'/'+base_elem] = np.log(conc_data[element]/conc_data[base_elem])
+            xrf_data[element+'/'+base_elem] = np.log(np.absolute(xrf_data[element]/xrf_data[base_elem]))
+
+            output_data['ln('+element+'/'+base_elem+')'] = xrf_data[element+'/'+base_elem]
+
+            ## Finding Equivalent data
+            elem_base_master = pd.DataFrame(columns = ['Conc', 'Scanner'])
+            for i in conc_data.index:
+                hole_scanner = xrf_data[xrf_data['Hole'] == conc_data['Hole'][i]]
+                core_scanner = hole_scanner[hole_scanner['Core'] == conc_data['Core'][i]]
+                section_scanner = core_scanner[core_scanner['Section'] == conc_data['Section'][i]]
+                interval_scanner = section_scanner[section_scanner['Interval (cm)'] == conc_data['Interval (cm)'][i]]
                 ### USING A RANGE FOR INTERVAL - WHAT IS THE OPTIMUM RANGE
                 if interval_scanner.shape[0] == 0:
                     interval_scanner = section_scanner[section_scanner['Interval (cm)']
-                                                   .between(conc['Interval (cm)'][i] - 2, conc['Interval (cm)'][i] + 2)]
-                K_Ca_master = K_Ca_master.append({'Conc': conc['K/Ca'][i], 'Scanner': np.mean(interval_scanner['K/Ca'])},
-                                  ignore_index = True)
+                                                .between(conc_data['Interval (cm)'][i] - 2, conc_data['Interval (cm)'][i] + 2)]
+                elem_base_master = elem_base_master.append({'Conc': conc_data[element+'/'+base_elem][i], 'Scanner': np.mean(interval_scanner[element+'/'+base_elem])}, 
+                                ignore_index = True)
+            elem_base_master.columns = ['ln('+element+'/'+base_elem+')_Conc', 'ln('+element+'/'+base_elem+')_XRF']
 
-            else:
-                core_scanner = scanner_a[scanner_a['Core'] == conc['Core'][i]]
-                section_scanner = core_scanner[core_scanner['Section'] == conc['Section'][i]]
-                interval_scanner = section_scanner[section_scanner['Interval (cm)'] == conc['Interval (cm)'][i]]
-                if interval_scanner.shape[0] == 0:
-                    interval_scanner = section_scanner[section_scanner['Interval (cm)']
-                                                   .between(conc['Interval (cm)'][i] - 2, conc['Interval (cm)'][i] + 2)]
-                K_Ca_master = K_Ca_master.append({'Conc': conc['K/Ca'][i], 'Scanner': np.mean(interval_scanner['K/Ca'])},
-                                  ignore_index = True)
-        K_Ca_master.columns = ['ln(K/Ca)_Conc', 'ln(K/Ca)_XRF']
+            ## Building Regression Model
+            elem_base_master_final = elem_base_master.dropna()
+            #### WHAT TO DO FOR NA VALUES
+            X = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_XRF']).reshape(-1, 1) 
+            Y = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_Conc']).reshape(-1, 1) 
+            regr = LinearRegression() 
+            regr.fit(X, Y)
+            score = regr.score(X,Y)
+            dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': score, 
+                'coef': regr.coef_[0][0], 'intercept': regr.intercept_[0]}
 
-        ## Building Regression Model
-        K_Ca_master_final = K_Ca_master.dropna()
-        #### WHAT TO DO FOR NA VALUES
-        X = np.array(K_Ca_master_final['ln(K/Ca)_XRF']).reshape(-1, 1)
-        Y = np.array(K_Ca_master_final['ln(K/Ca)_Conc']).reshape(-1, 1)
-        regr = LinearRegression()
-        regr.fit(X, Y)
+            log_predicted = regr.predict(np.array(xrf_data[element+'/'+base_elem]).reshape(-1, 1))
+            predicted_ratio = np.exp(log_predicted)
 
-        ## Printing the R^2 value and the crossplot
-        print(regr.score(X, Y))
-        fig = plt.figure()
-        plt.scatter(X, Y, color ='b')
-        plt.xlabel("Log Ratio of XRF Scanner")
-        plt.ylabel("Log Ratio of Concentration")
-        plt.plot(X, regr.coef_[0][0] * X + regr.intercept_[0], color ='k')
-        #plt.show()
-        plt.savefig('GraphImages/test.png')
-        pdf.savefig(fig)
-        pdf.close()
+            output_data['predicted_ln('+element+'/'+base_elem+')'] = log_predicted
+            output_data['predicted_'+element+'/'+base_elem] = predicted_ratio
 
-        self.close()
+            # ## Printing the R^2 value and the crossplot
+            # print(element+'/'+base_elem, '-', regr.score(X, Y))
+            # plt.scatter(X, Y, color ='b')
+            # plt.xlabel("Log Ratio of XRF Scanner")
+            # plt.ylabel("Log Ratio of Concentration")
+            # plt.plot(X, regr.coef_[0][0] * X + regr.intercept_[0], color ='k')
+            # plt.show()
+        output_data.to_csv("./test3.csv", index=False)
+        print(dict_for_plots)
 
-        onlyfiles = [f for f in listdir("./GraphImages/") if isfile(join("./GraphImages/", f))]
-        print(onlyfiles)
+        
 
-        for file in onlyfiles:
-            self.dropDown.addItem(file)
+        # ## Printing the R^2 value and the crossplot
+        # print(regr.score(X, Y))
+        # fig = plt.figure()
+        # plt.scatter(X, Y, color ='b')
+        # plt.xlabel("Log Ratio of XRF Scanner")
+        # plt.ylabel("Log Ratio of Concentration")
+        # plt.plot(X, regr.coef_[0][0] * X + regr.intercept_[0], color ='k')
+        # #plt.show()
+        # plt.savefig('GraphImages/test.png')
+        # pdf.savefig(fig)
+        # pdf.close()
+
+        # self.close()
+
+        # onlyfiles = [f for f in listdir("./GraphImages/") if isfile(join("./GraphImages/", f))]
+        # print(onlyfiles)
+
+        # for file in onlyfiles:
+        #     self.dropDown.addItem(file)
 
 
 
