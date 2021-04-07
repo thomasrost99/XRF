@@ -31,7 +31,6 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
 
         global elementsToGraph
         elementsToGraph = self.selectedElements
-        print(elementsToGraph)
 
     def initializePage(self):
         temp = sorted(set(inputSelectorPage.elementsToDisplay))

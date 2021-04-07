@@ -67,7 +67,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         if(self.XRFInput.currentItem().text() == "Add an XRF file"):
             dialog = QFileDialog
             res = dialog.getOpenFileNames(self, 'Open file', '',"XRF files (*.csv)")
-            print(res[0])
             if(res[0]):
                 for file in res[0]:
                     duplicate = 0

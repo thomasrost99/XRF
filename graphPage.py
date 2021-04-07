@@ -58,7 +58,7 @@ class GraphPage(QtWidgets.QWizardPage):
 
         # This list contains the elements that were selected on elementSelectorPage
         self.elements = elementSelectorPage.elementsToGraph
-        print(self.elements)
+        # print(self.elements)
         print("Making Graphs")
         pdf = matplotlib.backends.backend_pdf.PdfPages("output.pdf")
 
@@ -127,7 +127,7 @@ class GraphPage(QtWidgets.QWizardPage):
             output_data['predicted_'+element+'/'+base_elem] = predicted_ratio
 
 
-        output_data.to_csv("./test3.csv", index=False)
+        output_data.to_csv("./outputData.csv", index=False)
         #print(dict_for_plots)
 
         for plot in dict_for_plots:
