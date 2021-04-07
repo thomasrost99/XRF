@@ -150,6 +150,7 @@ class GraphPage(QtWidgets.QWizardPage):
 
         onlyfiles = [f for f in listdir("./GraphImages/") if isfile(join("./GraphImages/", f))]
 
+        self.dropDown.clear() 
         for file in onlyfiles:
             self.dropDown.addItem(file)
 
