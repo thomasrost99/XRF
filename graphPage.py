@@ -16,6 +16,7 @@ from sklearn.linear_model import LinearRegression
 from datetime import datetime
 import matplotlib.backends.backend_pdf
 import app
+import os
 from os import listdir
 from os.path import isfile, join
 import elementSelectorPage
@@ -34,7 +35,7 @@ class GraphPage(QtWidgets.QWizardPage):
         self.layout.addWidget(self.dropDown)
 
 
-        self.pic = QPixmap("./GraphImages/test.png")
+        self.pic = QPixmap("")
         self.picLabel = QLabel()
         self.picLabel.setPixmap(self.pic)
         self.layout.addWidget(self.picLabel)
@@ -49,6 +50,12 @@ class GraphPage(QtWidgets.QWizardPage):
 
 
     def initializePage(self):
+
+        filelist = [ f for f in os.listdir("./GraphImages/") if f.endswith(".png") ]
+        for f in filelist:
+            os.remove(os.path.join("./GraphImages/", f))
+
+
         # This list contains the elements that were selected on elementSelectorPage
         self.elements = elementSelectorPage.elementsToGraph
         print(self.elements)
@@ -65,7 +72,7 @@ class GraphPage(QtWidgets.QWizardPage):
             else:
                 temp_df = pd.DataFrame.from_dict(value)
                 kV_30_df = kV_30_df.append(temp_df)
-        
+
         xrf_data = pd.merge(kV_10_df, kV_30_df,how='outer', on=['Site', 'Hole' ,'Core', 'Core Type', 'Section', "Interval (cm)"])
 
         conc_data = pd.DataFrame()
@@ -98,19 +105,19 @@ class GraphPage(QtWidgets.QWizardPage):
                 if interval_scanner.shape[0] == 0:
                     interval_scanner = section_scanner[section_scanner['Interval (cm)']
                                                 .between(conc_data['Interval (cm)'][i] - 2, conc_data['Interval (cm)'][i] + 2)]
-                elem_base_master = elem_base_master.append({'Conc': conc_data[element+'/'+base_elem][i], 'Scanner': np.mean(interval_scanner[element+'/'+base_elem])}, 
+                elem_base_master = elem_base_master.append({'Conc': conc_data[element+'/'+base_elem][i], 'Scanner': np.mean(interval_scanner[element+'/'+base_elem])},
                                 ignore_index = True)
             elem_base_master.columns = ['ln('+element+'/'+base_elem+')_Conc', 'ln('+element+'/'+base_elem+')_XRF']
 
             ## Building Regression Model
             elem_base_master_final = elem_base_master.dropna()
             #### WHAT TO DO FOR NA VALUES
-            X = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_XRF']).reshape(-1, 1) 
-            Y = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_Conc']).reshape(-1, 1) 
-            regr = LinearRegression() 
+            X = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_XRF']).reshape(-1, 1)
+            Y = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_Conc']).reshape(-1, 1)
+            regr = LinearRegression()
             regr.fit(X, Y)
             score = regr.score(X,Y)
-            dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': score, 
+            dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': score,
                 'coef': regr.coef_[0][0], 'intercept': regr.intercept_[0]}
 
             log_predicted = regr.predict(np.array(xrf_data[element+'/'+base_elem]).reshape(-1, 1))
@@ -119,42 +126,36 @@ class GraphPage(QtWidgets.QWizardPage):
             output_data['predicted_ln('+element+'/'+base_elem+')'] = log_predicted
             output_data['predicted_'+element+'/'+base_elem] = predicted_ratio
 
-            # ## Printing the R^2 value and the crossplot
-            # print(element+'/'+base_elem, '-', regr.score(X, Y))
-            # plt.scatter(X, Y, color ='b')
-            # plt.xlabel("Log Ratio of XRF Scanner")
-            # plt.ylabel("Log Ratio of Concentration")
-            # plt.plot(X, regr.coef_[0][0] * X + regr.intercept_[0], color ='k')
-            # plt.show()
+
         output_data.to_csv("./test3.csv", index=False)
         print(dict_for_plots)
 
-        
+        for plot in dict_for_plots:
+            print(dict_for_plots[plot])
 
-        # ## Printing the R^2 value and the crossplot
-        # print(regr.score(X, Y))
-        # fig = plt.figure()
-        # plt.scatter(X, Y, color ='b')
-        # plt.xlabel("Log Ratio of XRF Scanner")
-        # plt.ylabel("Log Ratio of Concentration")
-        # plt.plot(X, regr.coef_[0][0] * X + regr.intercept_[0], color ='k')
-        # #plt.show()
-        # plt.savefig('GraphImages/test.png')
-        # pdf.savefig(fig)
-        # pdf.close()
+            fig = plt.figure()
+            plt.scatter(dict_for_plots[plot]["x_val"], dict_for_plots[plot]["y_val"], color ='b')
+            plt.plot(dict_for_plots[plot]["x_val"], dict_for_plots[plot]["coef"] * dict_for_plots[plot]["x_val"] + dict_for_plots[plot]["intercept"], color ='k')
+            plt.xlabel("Log Ratio of XRF Scanner")
+            plt.ylabel("Log Ratio of Concentration")
+            plt.title(str(plot))
+            r = round(dict_for_plots[plot]["r_score"], 5)
+            plt.text(0.1,0.9,"r^2 = {}".format(r),transform=plt.gca().transAxes)
+            #plt.show()
+            plt.savefig('GraphImages/'+ plot.replace("/", "") + '.png')
+            pdf.savefig(fig)
+            print("____________________________________________")
 
-        # self.close()
+        pdf.close()
 
-        # onlyfiles = [f for f in listdir("./GraphImages/") if isfile(join("./GraphImages/", f))]
-        # print(onlyfiles)
+        onlyfiles = [f for f in listdir("./GraphImages/") if isfile(join("./GraphImages/", f))]
 
-        # for file in onlyfiles:
-        #     self.dropDown.addItem(file)
+        for file in onlyfiles:
+            self.dropDown.addItem(file)
 
 
 
     def onChanged(self, text):
-        print(text)
         self.layout.removeWidget(self.picLabel)
         self.pic = QPixmap("./GraphImages/" + str(text))
         self.picLabel = QLabel()
