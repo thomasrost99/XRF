@@ -41,7 +41,7 @@ class MacWizard(QtWidgets.QWizard):
         #create pages to add to wizard
         self.inputPage = InputSelectorPage(self)
         self.elementPage = ElementSelectorPage(self)
-        self.thirdPage = OptionsPage(self)
+        #self.thirdPage = OptionsPage(self)
         self.graphPage = GraphPage(self)
 
         global inputPageID, elementPageID
@@ -52,7 +52,7 @@ class MacWizard(QtWidgets.QWizard):
         #Add pages in order to the wizard
         self.setPage(inputPageID, self.inputPage)
         self.setPage(elementPageID, self.elementPage)
-        self.setPage(optionsID, self.thirdPage)
+        #self.setPage(optionsID, self.thirdPage)
         self.setPage(graphPageID, self.graphPage)
 
         #link all buttons to proper functions
