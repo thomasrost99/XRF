@@ -55,6 +55,8 @@ class GraphPage(QtWidgets.QWizardPage):
 
     def initializePage(self):
 
+        fileName = QFileDialog.getSaveFileName(self, 'Output file location', '')
+
         filelist = [ f for f in os.listdir("./GraphImages/") if f.endswith(".png") ]
         for f in filelist:
             os.remove(os.path.join("./GraphImages/", f))
@@ -62,7 +64,7 @@ class GraphPage(QtWidgets.QWizardPage):
         # This list contains the elements that were selected on elementSelectorPage
         self.elements = elementSelectorPage.elementsToGraph
         print("Making Graphs")
-        pdf = matplotlib.backends.backend_pdf.PdfPages("output.pdf")
+        pdf = matplotlib.backends.backend_pdf.PdfPages(str(fileName[0]) + ".pdf")
 
         kV_10_df = pd.DataFrame()
         kV_30_df = pd.DataFrame()
@@ -128,8 +130,7 @@ class GraphPage(QtWidgets.QWizardPage):
             output_data['predicted_ln('+element+'/'+base_elem+')'] = log_predicted
             output_data['predicted_'+element+'/'+base_elem] = predicted_ratio
 
-
-        output_data.to_csv("./outputData.csv", index=False)
+        output_data.to_csv(str(fileName[0]) + ".csv", index=False)
         #print(dict_for_plots)
 
         for plot in dict_for_plots:
