@@ -46,6 +46,9 @@ class GraphPage(QtWidgets.QWizardPage):
         self.onlyfiles = []
         self.elements = []
 
+        if not os.path.exists('./GraphImages/'):
+            os.makedirs('./GraphImages/')
+
 
         #-----------------------------------------------------------------------------------------
 
