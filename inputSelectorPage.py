@@ -66,16 +66,17 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def XRFClicked(self, qmodelindex):
         if(self.XRFInput.currentItem().text() == "Add an XRF file"):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', '',"XRF files (*.csv)")
+            res = dialog.getOpenFileNames(self, 'Open file', '',"XRF files (*.csv)")
             if(res[0]):
-                duplicate = 0
-                for i in range(self.XRFInput.count()):
-                    if(res[0] == self.XRFInput.item(i).text()):
-                        duplicate = 1
-                if not duplicate:
-                    if self.isFileValid("XRF", res[0]):
-                        self.XRFInput.insertItem(1, res[0])
-                        self.addToDictMaster(res[0])
+                for file in res[0]:
+                    duplicate = 0
+                    for i in range(self.XRFInput.count()):
+                        if(file == self.XRFInput.item(i).text()):
+                            duplicate = 1
+                    if not duplicate:
+                        if self.isFileValid("XRF", file):
+                            self.XRFInput.insertItem(1, file)
+                            self.addToDictMaster(file)
         else:
             app.dictMaster.pop(self.XRFInput.currentItem().text())
             self.XRFInput.takeItem(self.XRFInput.currentRow())
@@ -87,16 +88,17 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def ConClicked(self, qmodelindex):
         if(self.conInput.currentItem().text() == "Add a Concentration file"):
             dialog = QFileDialog
-            res = dialog.getOpenFileName(self, 'Open file', '',"Calibration files (*.csv)")
+            res = dialog.getOpenFileNames(self, 'Open file', '',"Calibration files (*.csv)")
             if(res[0]):
-                duplicate = 0
-                for i in range(self.conInput.count()):
-                    if(res[0] == self.conInput.item(i).text()):
-                        duplicate = 1
-                if not duplicate:
-                    if self.isFileValid("Concentration", res[0]):
-                        self.conInput.insertItem(1, res[0])
-                        self.addToConDict(res[0])
+                for file in res[0]:
+                    duplicate = 0
+                    for i in range(self.conInput.count()):
+                        if(file == self.conInput.item(i).text()):
+                            duplicate = 1
+                    if not duplicate:
+                        if self.isFileValid("Concentration", file):
+                            self.conInput.insertItem(1, file)
+                            self.addToConDict(file)
         else:
             app.conDict.pop(self.conInput.currentItem().text())
             self.conInput.takeItem(self.conInput.currentRow())

@@ -58,7 +58,6 @@ class GraphPage(QtWidgets.QWizardPage):
 
         # This list contains the elements that were selected on elementSelectorPage
         self.elements = elementSelectorPage.elementsToGraph
-        #print(self.elements)
         print("Making Graphs")
         pdf = matplotlib.backends.backend_pdf.PdfPages("output.pdf")
 
@@ -127,12 +126,10 @@ class GraphPage(QtWidgets.QWizardPage):
             output_data['predicted_'+element+'/'+base_elem] = predicted_ratio
 
 
-        output_data.to_csv("./test3.csv", index=False)
+        output_data.to_csv("./outputData.csv", index=False)
         #print(dict_for_plots)
 
         for plot in dict_for_plots:
-            #print(dict_for_plots[plot])
-
             fig = plt.figure()
             plt.scatter(dict_for_plots[plot]["x_val"], dict_for_plots[plot]["y_val"], color ='b')
             plt.plot(dict_for_plots[plot]["x_val"], dict_for_plots[plot]["coef"] * dict_for_plots[plot]["x_val"] + dict_for_plots[plot]["intercept"], color ='k')
@@ -144,12 +141,12 @@ class GraphPage(QtWidgets.QWizardPage):
             #plt.show()
             plt.savefig('GraphImages/'+ plot.replace("/", "") + '.png')
             pdf.savefig(fig)
-            #print("____________________________________________")
 
         pdf.close()
 
         onlyfiles = [f for f in listdir("./GraphImages/") if isfile(join("./GraphImages/", f))]
 
+        self.dropDown.clear()
         for file in onlyfiles:
             self.dropDown.addItem(file)
 
