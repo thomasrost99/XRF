@@ -19,6 +19,8 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
         self.listwidget = QListWidget()
         self.listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
         self.listwidget.clicked.connect(self.clicked)
+        
+
         layout.addWidget(self.listwidget)
 
         self.setLayout(layout)

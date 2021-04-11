@@ -80,6 +80,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             app.dictMaster.pop(self.XRFInput.currentItem().text())
             self.XRFInput.takeItem(self.XRFInput.currentRow())
         self.XRFInput.clearSelection()
+        #print(app.dictMaster)
 
     # If "add" item is clicked in Concentration input, choose a new csv file to add to the list. If any other list item is clicked,
     # it should be removed.

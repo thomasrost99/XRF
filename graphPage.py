@@ -20,6 +20,7 @@ import os
 from os import listdir
 from os.path import isfile, join
 import elementSelectorPage
+import baseElementSelectorPage
 
 
 
@@ -55,10 +56,9 @@ class GraphPage(QtWidgets.QWizardPage):
         for f in filelist:
             os.remove(os.path.join("./GraphImages/", f))
 
-
         # This list contains the elements that were selected on elementSelectorPage
         self.elements = elementSelectorPage.elementsToGraph
-        print(self.elements)
+        #print(self.elements)
         print("Making Graphs")
         pdf = matplotlib.backends.backend_pdf.PdfPages("output.pdf")
 
@@ -81,7 +81,7 @@ class GraphPage(QtWidgets.QWizardPage):
             temp_df = pd.DataFrame.from_dict(value)
             conc_data = conc_data.append(temp_df)
 
-        base_elem = "Ca"
+        base_elem = baseElementSelectorPage.baseElement
 
         output_data = xrf_data
 
@@ -128,10 +128,10 @@ class GraphPage(QtWidgets.QWizardPage):
 
 
         output_data.to_csv("./test3.csv", index=False)
-        print(dict_for_plots)
+        #print(dict_for_plots)
 
         for plot in dict_for_plots:
-            print(dict_for_plots[plot])
+            #print(dict_for_plots[plot])
 
             fig = plt.figure()
             plt.scatter(dict_for_plots[plot]["x_val"], dict_for_plots[plot]["y_val"], color ='b')
@@ -144,7 +144,7 @@ class GraphPage(QtWidgets.QWizardPage):
             #plt.show()
             plt.savefig('GraphImages/'+ plot.replace("/", "") + '.png')
             pdf.savefig(fig)
-            print("____________________________________________")
+            #print("____________________________________________")
 
         pdf.close()
 

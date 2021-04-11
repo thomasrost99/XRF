@@ -11,6 +11,7 @@ from inputSelectorPage import *
 from optionsPage import *
 from graphPage import *
 from qt_material import apply_stylesheet
+from baseElementSelectorPage import *
 
 dictMaster = {}
 conDict = {}
@@ -41,19 +42,23 @@ class MacWizard(QtWidgets.QWizard):
         #create pages to add to wizard
         self.inputPage = InputSelectorPage(self)
         self.elementPage = ElementSelectorPage(self)
-        self.thirdPage = OptionsPage(self)
+        #self.thirdPage = OptionsPage(self)
         self.graphPage = GraphPage(self)
+        self.baseElementPage = BaseElementSelectorPage(self)
 
         global inputPageID, elementPageID
         inputPageID = 0
-        elementPageID = 1
-        optionsID = 2
-        graphPageID = 3
+        elementPageID = 2
+        optionsID = 3
+        graphPageID = 4
+        basePageID = 1
         #Add pages in order to the wizard
         self.setPage(inputPageID, self.inputPage)
+        self.setPage(basePageID, self.baseElementPage)
         self.setPage(elementPageID, self.elementPage)
-        self.setPage(optionsID, self.thirdPage)
+        #self.setPage(optionsID, self.thirdPage)
         self.setPage(graphPageID, self.graphPage)
+
 
         #link all buttons to proper functions
         self.button(QWizard.NextButton).clicked.connect(self.nextClicked)
@@ -104,9 +109,10 @@ class MacWizard(QtWidgets.QWizard):
 
             #print("Check that input is right then advance")
         #elif((pageID - 1) == elementPageID):
+
             #self.lockButton('back')
             #print("Verify elements selected are valid then advance")
-        #print(self.elementPage.selectedElements)
+        print(self.elementPage.selectedElements)
 
     def finishClicked(self):
         print("Make Output / Check if this replaced the next button")
@@ -117,19 +123,7 @@ class MacWizard(QtWidgets.QWizard):
     def backClicked(self):
         print("back")
 
-class Page2(QtWidgets.QWizardPage):
-    def __init__(self, parent=None):
-        super(Page2, self).__init__(parent)
-        self.label1 = QtWidgets.QLabel()
-        self.label2 = QtWidgets.QLabel()
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.label1)
-        layout.addWidget(self.label2)
-        self.setLayout(layout)
 
-    def initializePage(self):
-        self.label1.setText("Example text")
-        self.label2.setText("Example text")
 
 if __name__ == '__main__':
     import sys
