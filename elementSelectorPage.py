@@ -19,7 +19,7 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
         self.listwidget = QListWidget()
         self.listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
         self.listwidget.clicked.connect(self.clicked)
-        
+
 
         layout.addWidget(self.listwidget)
 
@@ -37,6 +37,7 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
     def initializePage(self):
         temp = sorted(set(inputSelectorPage.elementsToDisplay))
         num = 1
+        self.listwidget.clear()
         print("-----BUG----\nThis list can have odd functionality")
         for element in temp:
             self.listwidget.insertItem(num, str(element))

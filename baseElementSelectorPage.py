@@ -19,12 +19,7 @@ class BaseElementSelectorPage(QtWidgets.QWizardPage):
         #self.listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
         #self.listwidget.clicked.connect(self.clicked)
         #layout.addWidget()
-        self.layout = QGridLayout(self)
-        label = QLabel("Choose Base Elements")
-        self.layout.addWidget(label)
-        self.setLayout(self.layout)
 
-        self.selectedElements = []
 
     def clicked(self, qmodelindex):
         items = self.listwidget.selectedItems()
@@ -50,19 +45,21 @@ class BaseElementSelectorPage(QtWidgets.QWizardPage):
 
     def initializePage(self):
 
+        self.layout = QGridLayout(self)
+        label = QLabel("Choose Base Elements")
+        self.layout.addWidget(label)
+        self.setLayout(self.layout)
+        self.selectedElements = []
 
         temp = sorted(set(inputSelectorPage.elementsToDisplay))
         buttons.clear()
-        #num = 1
-        #print("-----BUG----\nThis list can have odd functionality")
+
         for element in temp:
             #self.listwidget.insertItem(num, str(element))
             buttAdd = QRadioButton(str(element))
             buttAdd.setChecked(False)
             buttons.append(buttAdd)
             buttAdd.toggled.connect(self.updateLabel)
-            #layout.addWidget(buttAdd)
-            #num = num + 1
 
         for butt in buttons:
             self.layout.addWidget(butt)
