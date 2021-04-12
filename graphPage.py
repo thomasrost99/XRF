@@ -142,6 +142,8 @@ class GraphPage(QtWidgets.QWizardPage):
             plt.title(str(plot))
             r = round(dict_for_plots[plot]["r_score"], 5)
             plt.text(0.1,0.9,"r^2 = {}".format(r),transform=plt.gca().transAxes)
+            eq = "y = " + str(round(dict_for_plots[plot]["coef"], 2)) + "x + " + str(round(dict_for_plots[plot]["intercept"], 2))
+            plt.text(0.1,0.85, eq, transform=plt.gca().transAxes)
             #plt.show()
             plt.savefig('GraphImages/'+ plot.replace("/", "") + '.png')
             pdf.savefig(fig)
