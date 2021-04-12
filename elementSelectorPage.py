@@ -18,7 +18,7 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
 
         self.listwidget = QListWidget()
         self.listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
-        self.listwidget.clicked.connect(self.clicked)
+        self.listwidget.itemSelectionChanged.connect(self.clicked)
 
 
         layout.addWidget(self.listwidget)
@@ -27,7 +27,7 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
 
         self.selectedElements = []
 
-    def clicked(self, qmodelindex):
+    def clicked(self):
         items = self.listwidget.selectedItems()
         self.selectedElements = [i.text() for i in list(items)]
 
