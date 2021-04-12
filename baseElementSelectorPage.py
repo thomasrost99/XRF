@@ -15,7 +15,7 @@ class BaseElementSelectorPage(QtWidgets.QWizardPage):
         super(BaseElementSelectorPage, self).__init__(parent)
         #buttons = []
 
-        #self.listwidget = QListWidget()
+        self.listwidget = QListWidget()
         #self.listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
         #self.listwidget.clicked.connect(self.clicked)
         #layout.addWidget()
@@ -28,6 +28,7 @@ class BaseElementSelectorPage(QtWidgets.QWizardPage):
         global elementsToGraph
         elementsToGraph = self.selectedElements
         print(elementsToGraph)
+
 
     def showSelected(self):
         for butt in buttons:
@@ -42,11 +43,12 @@ class BaseElementSelectorPage(QtWidgets.QWizardPage):
             print(baseElement)
             baseElement = rbtn.text()
             print(baseElement)
+        self.completeChanged.emit()
 
     def initializePage(self):
 
         self.layout = QGridLayout(self)
-        label = QLabel("Choose Base Elements")
+        label = QLabel("Choose Base Element")
         self.layout.addWidget(label)
         self.setLayout(self.layout)
         self.selectedElements = []
@@ -63,3 +65,11 @@ class BaseElementSelectorPage(QtWidgets.QWizardPage):
 
         for butt in buttons:
             self.layout.addWidget(butt)
+
+    def isComplete(self):
+        flag = False
+        for butt in buttons:
+            if(butt.isChecked()):
+                flag = True
+                break
+        return flag

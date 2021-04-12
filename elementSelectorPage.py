@@ -33,6 +33,7 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
 
         global elementsToGraph
         elementsToGraph = self.selectedElements
+        self.completeChanged.emit()
 
     def initializePage(self):
         temp = sorted(set(inputSelectorPage.elementsToDisplay))
@@ -42,3 +43,6 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
         for element in temp:
             self.listwidget.insertItem(num, str(element))
             num = num + 1
+
+    def isComplete(self):
+        return len(self.listwidget.selectedItems()) > 0

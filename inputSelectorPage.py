@@ -82,6 +82,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             self.XRFInput.takeItem(self.XRFInput.currentRow())
         self.XRFInput.clearSelection()
         #print(app.dictMaster)
+        self.completeChanged.emit()
 
     # If "add" item is clicked in Concentration input, choose a new csv file to add to the list. If any other list item is clicked,
     # it should be removed.
@@ -105,6 +106,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             global elementsToDisplay
             elementsToDisplay = []
         self.conInput.clearSelection()
+        self.completeChanged.emit()
 
 
     #generates the message box that tells the user to upload valid files
@@ -245,3 +247,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                     return header, index
         file.close()
         return None, -1
+
+    def isComplete(self):
+        return self.XRFInput.item(1) is not None and self.conInput.item(1) is not None
