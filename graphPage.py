@@ -54,7 +54,6 @@ class GraphPage(QtWidgets.QWizardPage):
 
 
     def initializePage(self):
-
         fileName = QFileDialog.getSaveFileName(self, 'Output file location', '')
 
         filelist = [ f for f in os.listdir("./GraphImages/") if f.endswith(".png") ]
