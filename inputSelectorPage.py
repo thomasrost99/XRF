@@ -54,7 +54,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         layout.setVerticalSpacing(10)
         self.setLayout(layout)
 
-        print("---BUG---\nRemove <NMG or other non numeric characters from element lists")
 
     #BROKEN reset elementsToDisplay when creating the page
     def initializePage(self):
@@ -251,7 +250,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                     for i in range(0,len(app.dictMaster[file][key])):
                         #if the value is a string
                         if(isinstance(app.dictMaster[file][key][i],str)):
-                            print("Found string: "+ app.dictMaster[file][key][i])
+                            #print("Found string: "+ app.dictMaster[file][key][i])
                             #see if the string can be parsed directly into an int
                             try:
                                 app.dictMaster[file][key][i] = int(app.dictMaster[file][key][i])

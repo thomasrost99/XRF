@@ -97,14 +97,6 @@ class MacWizard(QtWidgets.QWizard):
     def nextClicked(self):
         pageID = QWizard.currentId(self)
 
-        if((pageID - 1) == inputPageID):
-            print("Removing Non Numeric Input")
-            print(conDict)
-            for file in conDict:
-                print(file + ": ")
-                for key in file:
-                    print(key + ", ")
-                print("------------")
 
 
     def finishClicked(self):
