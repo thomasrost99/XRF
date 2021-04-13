@@ -186,6 +186,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                 df = pd.read_csv(fname, usecols = [temp[1]])
                 app.dictMaster[fname].update(df.to_dict(orient='list'))
                 app.dictMaster[fname][element] = app.dictMaster[fname].pop(temp[0])
+        self.removeNonNumericDictMasterData()
 
     #add retrieved data to the dictionary containing all Concentration data
     def addToConDict(self, fname):
@@ -217,7 +218,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                 df = pd.read_csv(fname, usecols = [temp[1]])
                 app.conDict[fname].update(df.to_dict(orient='list'))
                 app.conDict[fname][element] = app.conDict[fname].pop(temp[0])
-
         self.removeNonNumericConDictData()
 
     #parse through every element in each file of conDict and replace all non numeric input with the int equivalent or zero
@@ -238,6 +238,26 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                             #string is not a number so we make it zero
                             except ValueError:
                                 app.conDict[file][key][i] = 0
+
+    #parse through every element in each file of dictMaster and replace all non numeric input with the int equivalent or zero
+    def removeNonNumericDictMasterData(self):
+        #all files in conDict
+        for file in app.dictMaster:
+            #all column headers in the file dictionary
+            for key in app.dictMaster[file]:
+                #if the header is an element
+                if(key in elements):
+                    #loop through the values
+                    for i in range(0,len(app.dictMaster[file][key])):
+                        #if the value is a string
+                        if(isinstance(app.dictMaster[file][key][i],str)):
+                            print("Found string: "+ app.dictMaster[file][key][i])
+                            #see if the string can be parsed directly into an int
+                            try:
+                                app.dictMaster[file][key][i] = int(app.dictMaster[file][key][i])
+                            #string is not a number so we make it zero
+                            except ValueError:
+                                app.dictMaster[file][key][i] = 0
 
 
     #given a header (key) and filename, this will determine if it exists in the file, null otherwise
