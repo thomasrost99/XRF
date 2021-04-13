@@ -218,6 +218,28 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                 app.conDict[fname].update(df.to_dict(orient='list'))
                 app.conDict[fname][element] = app.conDict[fname].pop(temp[0])
 
+        self.removeNonNumericConDictData()
+
+    #parse through every element in each file of conDict and replace all non numeric input with the int equivalent or zero
+    def removeNonNumericConDictData(self):
+        #all files in conDict
+        for file in app.conDict:
+            #all column headers in the file dictionary
+            for key in app.conDict[file]:
+                #if the header is an element
+                if(key in elements):
+                    #loop through the values
+                    for i in range(0,len(app.conDict[file][key])):
+                        #if the value is a string
+                        if(isinstance(app.conDict[file][key][i],str)):
+                            #see if the string can be parsed directly into an int
+                            try:
+                                app.conDict[file][key][i] = int(app.conDict[file][key][i])
+                            #string is not a number so we make it zero
+                            except ValueError:
+                                app.conDict[file][key][i] = 0
+
+
     #given a header (key) and filename, this will determine if it exists in the file, null otherwise
     def isHeaderInFile(self, key, fileName):
         file = open(fileName ,'r')

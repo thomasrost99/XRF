@@ -94,28 +94,21 @@ class MacWizard(QtWidgets.QWizard):
             return False
         return True
 
-        #look into using this to prevent moving onto next page
-    def isComplete(self):
-        #print("complete")
-        return False
-        #emit.completeChanged
-
     def nextClicked(self):
-        #print(QWizard.currentPage(self))
-        #print(QWizard.currentId(self))
         pageID = QWizard.currentId(self)
-        self.isComplete()
-        #if((pageID - 1) == inputPageID):
 
-            #print("Check that input is right then advance")
-        #elif((pageID - 1) == elementPageID):
+        if((pageID - 1) == inputPageID):
+            print("Removing Non Numeric Input")
+            print(conDict)
+            for file in conDict:
+                print(file + ": ")
+                for key in file:
+                    print(key + ", ")
+                print("------------")
 
-            #self.lockButton('back')
-            #print("Verify elements selected are valid then advance")
-        print(self.elementPage.selectedElements)
 
     def finishClicked(self):
-        print("Make Output / Check if this replaced the next button")
+        print("finishClicked")
 
     def cancelClicked(self):
         print("Cancelled")
