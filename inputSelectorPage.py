@@ -92,10 +92,13 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             if(res[0]):
                 for file in res[0]:
                     duplicate = 0
-                    for i in range(self.conInput.count()):
-                        if(file == self.conInput.item(i).text()):
-                            duplicate = 1
-                    if not duplicate:
+                    if(self.conInput.count()>1):
+                        self.createTooManyConcentrationMsgBox()
+                    #for i in range(self.conInput.count()):
+                        #if(file == self.conInput.item(i).text()):
+                            #duplicate = 1
+                    #if not duplicate:
+                    else:
                         if self.isFileValid("Concentration", file):
                             self.conInput.insertItem(1, file)
                             self.addToConDict(file)
@@ -107,6 +110,13 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         self.conInput.clearSelection()
         self.completeChanged.emit()
 
+    def createTooManyConcentrationMsgBox(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText("You may only upload 1 concentration file at a time.")
+        msg.setWindowTitle("Error: Too Many Files")
+        msg.setStandardButtons(QMessageBox.Cancel)
+        msg.exec_()
 
     #generates the message box that tells the user to upload valid files
     def createFileErrorMsgBox(self, missingFields):
