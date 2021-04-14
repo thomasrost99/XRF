@@ -14,18 +14,19 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
         super(ElementSelectorPage, self).__init__(parent)
         layout = QGridLayout(self)
         label = QLabel("Choose Elements")
-        layout.addWidget(label)
+        layout.addWidget(label,1,1)
 
         self.listwidget = QListWidget()
         self.listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
         self.listwidget.itemSelectionChanged.connect(self.clicked)
 
-
-        layout.addWidget(self.listwidget)
+        layout.addWidget(self.listwidget,2,1)
 
         self.setLayout(layout)
 
         self.selectedElements = []
+
+
 
     def clicked(self):
         items = self.listwidget.selectedItems()
