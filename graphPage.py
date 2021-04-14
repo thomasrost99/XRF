@@ -65,6 +65,7 @@ class GraphPage(QtWidgets.QWizardPage):
         print("Making Graphs")
         pdf = matplotlib.backends.backend_pdf.PdfPages(str(fileName[0]) + ".pdf")
 
+        ### DATAFRAMES MERGER
         kV_10_df = pd.DataFrame()
         kV_30_df = pd.DataFrame()
 
@@ -85,17 +86,17 @@ class GraphPage(QtWidgets.QWizardPage):
             conc_data = conc_data.append(temp_df)
 
         base_elem = baseElementSelectorPage.baseElement
-
+        xrf_data = xrf_data[(xrf_data != 0).all(1)]
+        conc_data = conc_data[(conc_data != 0).all(1)]
         output_data = xrf_data
 
         dict_for_plots = {}
 
         for element in self.elements:
             ## Calculating Log Ratios for both files
+            ### DO NOT INCLUDE NEGATIVE VALUES
             conc_data[element+'/'+base_elem] = np.log(conc_data[element]/conc_data[base_elem])
-            xrf_data[element+'/'+base_elem] = np.log(np.absolute(xrf_data[element]/xrf_data[base_elem]))
-
-            output_data['ln('+element+'/'+base_elem+')'] = xrf_data[element+'/'+base_elem]
+            xrf_data['ln('+element+'/'+base_elem+')'] = np.log(np.absolute(xrf_data[element]/xrf_data[base_elem]))
 
             ## Finding Equivalent data
             elem_base_master = pd.DataFrame(columns = ['Conc', 'Scanner'])
@@ -105,16 +106,16 @@ class GraphPage(QtWidgets.QWizardPage):
                 section_scanner = core_scanner[core_scanner['Section'] == conc_data['Section'][i]]
                 interval_scanner = section_scanner[section_scanner['Interval (cm)'] == conc_data['Interval (cm)'][i]]
                 ### USING A RANGE FOR INTERVAL - WHAT IS THE OPTIMUM RANGE
+                ### CHOOSE THE SMALLER VALUE
                 if interval_scanner.shape[0] == 0:
                     interval_scanner = section_scanner[section_scanner['Interval (cm)']
                                                 .between(conc_data['Interval (cm)'][i] - 2, conc_data['Interval (cm)'][i] + 2)]
-                elem_base_master = elem_base_master.append({'Conc': conc_data[element+'/'+base_elem][i], 'Scanner': np.mean(interval_scanner[element+'/'+base_elem])},
+                elem_base_master = elem_base_master.append({'Conc': conc_data[element+'/'+base_elem][i], 'Scanner': np.mean(interval_scanner['ln('+element+'/'+base_elem+')'])},
                                 ignore_index = True)
             elem_base_master.columns = ['ln('+element+'/'+base_elem+')_Conc', 'ln('+element+'/'+base_elem+')_XRF']
 
             ## Building Regression Model
             elem_base_master_final = elem_base_master.dropna()
-            #### WHAT TO DO FOR NA VALUES
             X = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_XRF']).reshape(-1, 1)
             Y = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_Conc']).reshape(-1, 1)
             regr = LinearRegression()
@@ -123,7 +124,7 @@ class GraphPage(QtWidgets.QWizardPage):
             dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': score,
                 'coef': regr.coef_[0][0], 'intercept': regr.intercept_[0]}
 
-            log_predicted = regr.predict(np.array(xrf_data[element+'/'+base_elem]).reshape(-1, 1))
+            log_predicted = regr.predict(np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1))
             predicted_ratio = np.exp(log_predicted)
 
             output_data['predicted_ln('+element+'/'+base_elem+')'] = log_predicted
