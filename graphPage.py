@@ -59,8 +59,8 @@ class GraphPage(QtWidgets.QWizardPage):
         global fileName
         if "." in fileName:
             fileName = fileName[:fileName.find(".")]
-        if ".pdf" not in fileName:
-            fileName = fileName + ".pdf"
+        #if ".pdf" not in fileName:
+            #fileName = fileName + ".pdf"
 
         print(fileName)
         filelist = [ f for f in os.listdir("./GraphImages/") if f.endswith(".png") ]
@@ -70,7 +70,8 @@ class GraphPage(QtWidgets.QWizardPage):
         # This list contains the elements that were selected on elementSelectorPage
         self.elements = elementSelectorPage.elementsToGraph
         print("Making Graphs")
-        pdf = matplotlib.backends.backend_pdf.PdfPages(fileName)
+        temp = fileName + ".pdf"
+        pdf = matplotlib.backends.backend_pdf.PdfPages(temp)
 
         ### DATAFRAMES MERGER
 
