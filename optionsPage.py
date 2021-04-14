@@ -6,13 +6,13 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import re
+import graphPage
 
 class OptionsPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super(OptionsPage, self).__init__(parent)
 
         self.outputpath = ""
-        self.majorAxis = False
 
         layout = QGridLayout(self)
         label = QLabel("Output and Regression")
@@ -47,13 +47,14 @@ class OptionsPage(QtWidgets.QWizardPage):
         fileName = QFileDialog.getSaveFileName(self, 'Output file location', '')
         self.outputpath = str(fileName[0])
         self.pathLabel.setText(self.outputpath)
+        graphPage.fileName = self.outputpath
         self.completeChanged.emit()
 
     def isComplete(self):
         return self.outputpath != ""
 
     def majorSelected(self):
-        self.majorAxis = True
+        graphPage.majorAxisRegressionSelected = True
 
     def linearSelected(self):
-        self.majorAxis = False
+        graphPage.majorAxisRegressionSelected = False

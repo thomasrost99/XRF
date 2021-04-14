@@ -22,7 +22,8 @@ from os.path import isfile, join
 import elementSelectorPage
 import baseElementSelectorPage
 
-
+fileName = ""
+majorAxisRegressionSelected = False
 
 class GraphPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -35,6 +36,7 @@ class GraphPage(QtWidgets.QWizardPage):
         self.dropDown.activated[str].connect(self.onChanged)
         self.layout.addWidget(self.dropDown)
 
+        fileName = ""
 
         self.pic = QPixmap("")
         self.picLabel = QLabel()
@@ -54,8 +56,13 @@ class GraphPage(QtWidgets.QWizardPage):
 
 
     def initializePage(self):
-        fileName = QFileDialog.getSaveFileName(self, 'Output file location', '')
+        global fileName
+        if "." in fileName:
+            fileName = fileName[:fileName.find(".")]
+        if ".pdf" not in fileName:
+            fileName = fileName + ".pdf"
 
+        print(fileName)
         filelist = [ f for f in os.listdir("./GraphImages/") if f.endswith(".png") ]
         for f in filelist:
             os.remove(os.path.join("./GraphImages/", f))
@@ -63,7 +70,7 @@ class GraphPage(QtWidgets.QWizardPage):
         # This list contains the elements that were selected on elementSelectorPage
         self.elements = elementSelectorPage.elementsToGraph
         print("Making Graphs")
-        pdf = matplotlib.backends.backend_pdf.PdfPages(str(fileName[0]) + ".pdf")
+        pdf = matplotlib.backends.backend_pdf.PdfPages(fileName)
 
         ### DATAFRAMES MERGER
         kV_10_df = pd.DataFrame()
