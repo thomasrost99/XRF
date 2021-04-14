@@ -147,7 +147,7 @@ class GraphPage(QtWidgets.QWizardPage):
             output_data['predicted_ln('+element+'/'+base_elem+')'] = log_predicted
             output_data['predicted_'+element+'/'+base_elem] = predicted_ratio
 
-        output_data.to_csv(fileName) + ".csv", index=False)
+        output_data.to_csv(fileName + ".csv", index=False)
         #print(dict_for_plots)
 
         for plot in dict_for_plots:
