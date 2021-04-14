@@ -73,18 +73,26 @@ class GraphPage(QtWidgets.QWizardPage):
         pdf = matplotlib.backends.backend_pdf.PdfPages(fileName)
 
         ### DATAFRAMES MERGER
-        kV_10_df = pd.DataFrame()
-        kV_30_df = pd.DataFrame()
+
+        energy_levels = []
 
         for key, value in app.dictMaster.items():
-            if "10kV" in key:
-                temp_df = pd.DataFrame.from_dict(value)
-                kV_10_df = kV_10_df.append(temp_df)
-            else:
-                temp_df = pd.DataFrame.from_dict(value)
-                kV_30_df = kV_30_df.append(temp_df)
+            energy_level = key[-8:-4]
+            if(not energy_level in energy_levels):
+                energy_levels.append(energy_level)
 
-        xrf_data = pd.merge(kV_10_df, kV_30_df,how='outer', on=['Site', 'Hole' ,'Core', 'Core Type', 'Section', "Interval (cm)"])
+        xrf_data = pd.DataFrame()
+
+        for el in energy_levels:
+            el_temp_df = pd.DataFrame()
+            for key, value in app.dictMaster.items():
+                if el in key:
+                    temp_df = pd.DataFrame.from_dict(value)
+                    el_temp_df = el_temp_df.append(temp_df)
+            if(energy_levels.index(el) == 0):
+                xrf_data = el_temp_df
+            else:
+                xrf_data = pd.merge(xrf_data, el_temp_df,how='outer', on=['Site', 'Hole' ,'Core', 'Core Type', 'Section', "Interval (cm)"])
 
         conc_data = pd.DataFrame()
 
@@ -112,11 +120,12 @@ class GraphPage(QtWidgets.QWizardPage):
                 core_scanner = hole_scanner[hole_scanner['Core'] == conc_data['Core'][i]]
                 section_scanner = core_scanner[core_scanner['Section'] == conc_data['Section'][i]]
                 interval_scanner = section_scanner[section_scanner['Interval (cm)'] == conc_data['Interval (cm)'][i]]
-                ### USING A RANGE FOR INTERVAL - WHAT IS THE OPTIMUM RANGE
-                ### CHOOSE THE SMALLER VALUE
                 if interval_scanner.shape[0] == 0:
-                    interval_scanner = section_scanner[section_scanner['Interval (cm)']
-                                                .between(conc_data['Interval (cm)'][i] - 2, conc_data['Interval (cm)'][i] + 2)]
+                    interval_scanner = section_scanner[section_scanner['Interval (cm)'] == conc_data['Interval (cm)'][i]-1]
+                    if interval_scanner.shape[0] == 0:
+                        interval_scanner = section_scanner[section_scanner['Interval (cm)'] == conc_data['Interval (cm)'][i]-2]
+                        if interval_scanner.shape[0] == 0:
+                            continue
                 elem_base_master = elem_base_master.append({'Conc': conc_data[element+'/'+base_elem][i], 'Scanner': np.mean(interval_scanner['ln('+element+'/'+base_elem+')'])},
                                 ignore_index = True)
             elem_base_master.columns = ['ln('+element+'/'+base_elem+')_Conc', 'ln('+element+'/'+base_elem+')_XRF']
