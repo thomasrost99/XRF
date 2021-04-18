@@ -30,7 +30,12 @@ class BaseElementSelectorPage(QtWidgets.QWizardPage):
         self.setLayout(self.layout)
         self.selectedElements = []
 
-        temp = sorted(set(inputSelectorPage.elementsToDisplay))
+        #temp = sorted(set(inputSelectorPage.elementsToDisplay))
+        #print(set(inputSelectorPage.xrfElements))
+        #print(set(inputSelectorPage.elementsToDisplay))
+        temp  = sorted(set(list(set(inputSelectorPage.xrfElements) & set(inputSelectorPage.elementsToDisplay))))
+        #print(temp)
+        #temp = sorted(set(temp))
         buttons.clear()
 
         for element in temp:

@@ -11,8 +11,10 @@ import pandas as pd
 import re
 import app
 
-# Dummy data initialize to empty list '[]' later
+#concentration elements
 elementsToDisplay = []
+#XRF elements
+xrfElements = []
 # **IMPORTANT** When the time comes to populate this list with acutal data you
 # must have the line "global elementsToDisplay" in the local scope before
 # populating the list. Otherwise a new variable will be created in that scope with
@@ -55,7 +57,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         self.setLayout(layout)
 
 
-    #BROKEN reset elementsToDisplay when creating the page
+    #reset elementsToDisplay when creating the page
     def initializePage(self):
         global elementsToDisplay
         elementsToDisplay = []
@@ -192,6 +194,9 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             # Figure out if element column is present in file. Temp consists of Object (or none) and column index (or -1)
             temp = self.isElementInFile(element, fname)
             if temp[0]:
+                global xrfElements
+                xrfElements.append(element)
+
                 df = pd.read_csv(fname, usecols = [temp[1]])
                 app.dictMaster[fname].update(df.to_dict(orient='list'))
                 app.dictMaster[fname][element] = app.dictMaster[fname].pop(temp[0])
@@ -220,6 +225,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             # Figure out if element column is present in file. Temp consists of Object (or none) and column index (or -1)
             temp = self.isElementInFile(element, fname)
             if temp[0]:
+                #ElementSelectorPage.conElements.append(temp[0])
                 #update the element selector screen
                 global elementsToDisplay
                 elementsToDisplay.append(temp[0])

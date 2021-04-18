@@ -34,10 +34,15 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
 
         global elementsToGraph
         elementsToGraph = self.selectedElements
+        print(elementsToGraph)
         self.completeChanged.emit()
 
     def initializePage(self):
-        temp = sorted(set(inputSelectorPage.elementsToDisplay))
+        #print(set(inputSelectorPage.xrfElements))
+        #print(set(inputSelectorPage.elementsToDisplay))
+        temp  = sorted(set(list(set(inputSelectorPage.xrfElements) & set(inputSelectorPage.elementsToDisplay))))
+        #print(temp)
+        #temp = sorted(set(temp))
         num = 1
         self.listwidget.clear()
         for element in temp:
