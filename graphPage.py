@@ -76,101 +76,103 @@ class GraphPage(QtWidgets.QWizardPage):
 
         ### DATAFRAMES MERGER
 
-        energy_levels = []
+        try:
+            energy_levels = []
 
-        for key, value in app.dictMaster.items():
-            energy_level = key[-8:-4]
-            if(not energy_level in energy_levels):
-                energy_levels.append(energy_level)
-
-        xrf_data = pd.DataFrame()
-
-        for el in energy_levels:
-            el_temp_df = pd.DataFrame()
             for key, value in app.dictMaster.items():
-                if el in key:
-                    temp_df = pd.DataFrame.from_dict(value)
-                    el_temp_df = el_temp_df.append(temp_df)
-            if(energy_levels.index(el) == 0):
-                xrf_data = el_temp_df
-            else:
-                xrf_data = pd.merge(xrf_data, el_temp_df,how='outer', on=['Site', 'Hole' ,'Core', 'Type', 'Section', "Interval"])
+                energy_level = key[-8:-4]
+                if(not energy_level in energy_levels):
+                    energy_levels.append(energy_level)
 
-        conc_data = pd.DataFrame()
+            xrf_data = pd.DataFrame()
 
-        for key, value in app.conDict.items():
-            temp_df = pd.DataFrame.from_dict(value)
-            conc_data = conc_data.append(temp_df)
+            for el in energy_levels:
+                el_temp_df = pd.DataFrame()
+                for key, value in app.dictMaster.items():
+                    if el in key:
+                        temp_df = pd.DataFrame.from_dict(value)
+                        el_temp_df = el_temp_df.append(temp_df)
+                if(energy_levels.index(el) == 0):
+                    xrf_data = el_temp_df
+                else:
+                    xrf_data = pd.merge(xrf_data, el_temp_df,how='outer', on=['Site', 'Hole' ,'Core', 'Type', 'Section', "Interval"])
 
-        base_elem = baseElementSelectorPage.baseElement
-        xrf_data = xrf_data[(xrf_data != 0).all(1)]
-        conc_data = conc_data[(conc_data != 0).all(1)]
-        output_data = xrf_data
+            conc_data = pd.DataFrame()
 
-        dict_for_plots = {}
+            for key, value in app.conDict.items():
+                temp_df = pd.DataFrame.from_dict(value)
+                conc_data = conc_data.append(temp_df)
 
-        for element in self.elements:
-            ## Calculating Log Ratios for both files
-            ### DO NOT INCLUDE NEGATIVE VALUES
-            conc_data[element+'/'+base_elem] = np.log(conc_data[element]/conc_data[base_elem])
-            xrf_data['ln('+element+'/'+base_elem+')'] = np.log(xrf_data[element]/xrf_data[base_elem])
+            base_elem = baseElementSelectorPage.baseElement
+            xrf_data = xrf_data[(xrf_data != 0).all(1)]
+            conc_data = conc_data[(conc_data != 0).all(1)]
+            output_data = xrf_data
 
-            ## Finding Equivalent data
-            elem_base_master = pd.DataFrame(columns = ['Conc', 'Scanner'])
-            for i in conc_data.index:
-                hole_scanner = xrf_data[xrf_data['Hole'] == conc_data['Hole'][i]]
-                core_scanner = hole_scanner[hole_scanner['Core'] == conc_data['Core'][i]]
-                section_scanner = core_scanner[core_scanner['Section'] == conc_data['Section'][i]]
-                interval_scanner = section_scanner[section_scanner['Interval'] == conc_data['Interval'][i]]
-                if interval_scanner.shape[0] == 0:
-                    interval_scanner = section_scanner[section_scanner['Interval'] == conc_data['Interval'][i]+1]
+            dict_for_plots = {}
+
+            for element in self.elements:
+                ## Calculating Log Ratios for both files
+                ### DO NOT INCLUDE NEGATIVE VALUES
+                conc_data[element+'/'+base_elem] = np.log(conc_data[element]/conc_data[base_elem])
+                xrf_data['ln('+element+'/'+base_elem+')'] = np.log(xrf_data[element]/xrf_data[base_elem])
+
+                ## Finding Equivalent data
+                elem_base_master = pd.DataFrame(columns = ['Conc', 'Scanner'])
+                for i in conc_data.index:
+                    hole_scanner = xrf_data[xrf_data['Hole'] == conc_data['Hole'][i]]
+                    core_scanner = hole_scanner[hole_scanner['Core'] == conc_data['Core'][i]]
+                    section_scanner = core_scanner[core_scanner['Section'] == conc_data['Section'][i]]
+                    interval_scanner = section_scanner[section_scanner['Interval'] == conc_data['Interval'][i]]
                     if interval_scanner.shape[0] == 0:
-                        interval_scanner = section_scanner[section_scanner['Interval'] == conc_data['Interval'][i]+2]
+                        interval_scanner = section_scanner[section_scanner['Interval'] == conc_data['Interval'][i]+1]
                         if interval_scanner.shape[0] == 0:
-                            continue
-                elem_base_master = elem_base_master.append({'Conc': conc_data[element+'/'+base_elem][i], 'Scanner': np.mean(interval_scanner['ln('+element+'/'+base_elem+')'])},
-                                ignore_index = True)
-            elem_base_master.columns = ['ln('+element+'/'+base_elem+')_Conc', 'ln('+element+'/'+base_elem+')_XRF']
+                            interval_scanner = section_scanner[section_scanner['Interval'] == conc_data['Interval'][i]+2]
+                            if interval_scanner.shape[0] == 0:
+                                continue
+                    elem_base_master = elem_base_master.append({'Conc': conc_data[element+'/'+base_elem][i], 'Scanner': np.mean(interval_scanner['ln('+element+'/'+base_elem+')'])},
+                                    ignore_index = True)
+                elem_base_master.columns = ['ln('+element+'/'+base_elem+')_Conc', 'ln('+element+'/'+base_elem+')_XRF']
 
-            ## Building Regression Model
-            elem_base_master_final = elem_base_master.dropna()
-            if elem_base_master_final.shape[0] == 0:
-                continue
-            X = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_XRF']).reshape(-1, 1)
-            Y = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_Conc']).reshape(-1, 1)
-            
-            if(majorAxisRegressionSelected):
-                results = regress2(X, Y, _method_type_2="reduced major axis")
-                slope = 0
-                intercept = 0
-                r_score = 0
-                for key, value in results.items():
-                    if key == "slope":
-                        slope = value
-                    elif key == "intercept":
-                        intercept = value
-                    elif key == "r":
-                        r_score = value
-                dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': r_score,
-                    'coef': slope, 'intercept': intercept}
-                log_predicted = np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1)*slope + intercept
+                ## Building Regression Model
+                elem_base_master_final = elem_base_master.dropna()
+                if elem_base_master_final.shape[0] == 0:
+                    continue
+                X = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_XRF']).reshape(-1, 1)
+                Y = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_Conc']).reshape(-1, 1)
                 
-            else:
-                regr = LinearRegression()
-                regr.fit(X, Y)
-                score = regr.score(X,Y)
-                dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': score,
-                    'coef': regr.coef_[0][0], 'intercept': regr.intercept_[0]}
+                if(majorAxisRegressionSelected):
+                    results = regress2(X, Y, _method_type_2="reduced major axis")
+                    slope = 0
+                    intercept = 0
+                    r_score = 0
+                    for key, value in results.items():
+                        if key == "slope":
+                            slope = value
+                        elif key == "intercept":
+                            intercept = value
+                        elif key == "r":
+                            r_score = value
+                    dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': r_score,
+                        'coef': slope, 'intercept': intercept}
+                    log_predicted = np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1)*slope + intercept
+                    
+                else:
+                    regr = LinearRegression()
+                    regr.fit(X, Y)
+                    score = regr.score(X,Y)
+                    dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': score,
+                        'coef': regr.coef_[0][0], 'intercept': regr.intercept_[0]}
 
-                log_predicted = np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1)*regr.coef_[0][0] + regr.intercept_[0]
+                    log_predicted = np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1)*regr.coef_[0][0] + regr.intercept_[0]
 
-            
-            predicted_ratio = np.exp(log_predicted)
-            output_data['predicted_ln('+element+'/'+base_elem+')'] = log_predicted
-            output_data['predicted_'+element+'/'+base_elem] = predicted_ratio
+                
+                predicted_ratio = np.exp(log_predicted)
+                output_data['predicted_ln('+element+'/'+base_elem+')'] = log_predicted
+                output_data['predicted_'+element+'/'+base_elem] = predicted_ratio
 
-        output_data.to_csv(fileName + ".csv", index=False)
-        #print(dict_for_plots)
+            output_data.to_csv(fileName + ".csv", index=False)
+        except:
+            print("Error Occured!")
 
         for plot in dict_for_plots:
             fig = plt.figure()
