@@ -121,11 +121,12 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         msg.exec_()
 
     #generates the message box that tells the user to upload valid files
-    def createFileErrorMsgBox(self, missingFields):
+    def createFileErrorMsgBox(self, missingFields, cols):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
-        msg.setText("File is missing the following headers:")
-        msg.setInformativeText(', '.join(missingFields))
+        add = "Found the Following Column Headers:\n" + ', '.join(cols) + "\n\nNeeded Columns That are Missing:\n" + ', '.join(missingFields)
+        msg.setText(add)
+        #msg.setInformativeText(', '.join(missingFields))
         msg.setWindowTitle("Error: Missing Values")
         msg.setStandardButtons(QMessageBox.Cancel)
         msg.buttonClicked.connect(self.msgbtn)
@@ -154,7 +155,8 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         reader = csv.DictReader(file)
         dict_from_csv = dict(list(reader)[0])
         columns = list(dict_from_csv.keys())
-        columns = self.unifyHeaderNames(columns)
+        #columns = self.unifyHeaderNames(columns)
+
 
         #does it have all the data we need? what data is it missing?
         for i in neededData:
@@ -166,7 +168,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             valid = False
 
         if(not valid):
-            self.createFileErrorMsgBox(missingFields)
+            self.createFileErrorMsgBox(missingFields, columns)
         else:
             return 1
         return 0
