@@ -94,7 +94,7 @@ class GraphPage(QtWidgets.QWizardPage):
             if(energy_levels.index(el) == 0):
                 xrf_data = el_temp_df
             else:
-                xrf_data = pd.merge(xrf_data, el_temp_df,how='outer', on=['Site', 'Hole' ,'Core', 'Core Type', 'Section', "Interval"])
+                xrf_data = pd.merge(xrf_data, el_temp_df,how='outer', on=['Site', 'Hole' ,'Core', 'Type', 'Section', "Interval"])
 
         conc_data = pd.DataFrame()
 
@@ -113,7 +113,7 @@ class GraphPage(QtWidgets.QWizardPage):
             ## Calculating Log Ratios for both files
             ### DO NOT INCLUDE NEGATIVE VALUES
             conc_data[element+'/'+base_elem] = np.log(conc_data[element]/conc_data[base_elem])
-            xrf_data['ln('+element+'/'+base_elem+')'] = np.log(np.absolute(xrf_data[element]/xrf_data[base_elem]))
+            xrf_data['ln('+element+'/'+base_elem+')'] = np.log(xrf_data[element]/xrf_data[base_elem])
 
             ## Finding Equivalent data
             elem_base_master = pd.DataFrame(columns = ['Conc', 'Scanner'])
@@ -134,6 +134,8 @@ class GraphPage(QtWidgets.QWizardPage):
 
             ## Building Regression Model
             elem_base_master_final = elem_base_master.dropna()
+            if elem_base_master_final.shape[0] == 0:
+                continue
             X = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_XRF']).reshape(-1, 1)
             Y = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_Conc']).reshape(-1, 1)
             
@@ -160,7 +162,7 @@ class GraphPage(QtWidgets.QWizardPage):
                 dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': score,
                     'coef': regr.coef_[0][0], 'intercept': regr.intercept_[0]}
 
-                log_predicted = regr.predict(np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1))
+                log_predicted = np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1)*regr.coef_[0][0] + regr.intercept_[0]
 
             
             predicted_ratio = np.exp(log_predicted)
