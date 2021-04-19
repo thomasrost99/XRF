@@ -180,11 +180,9 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
         #check for near match of interval and core type
         vals = self.isHeaderInFile("Type",fname)
-        print(vals)
         if(vals!="null"):
             neededData.append(vals)
         vals = self.isHeaderInFile("Interval",fname)
-        print(vals)
         if(vals!="null"):
             neededData.append("Interval")
 
@@ -213,11 +211,9 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
         #check for near match of interval and core type
         vals = self.isHeaderInFile("Type",fname)
-        print(vals)
         if(vals!="null"):
             neededData.append(vals)
         vals = self.isHeaderInFile("Interval",fname)
-        print(vals)
         if(vals!="null"):
             neededData.append("Interval")
 
