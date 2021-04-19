@@ -3,3 +3,4 @@ qt-material
 pandas
 matplotlib
 sklearn
+pylr2

@@ -180,11 +180,13 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
         #check for near match of interval and core type
         vals = self.isHeaderInFile("Type",fname)
+        print(vals)
         if(vals!="null"):
             neededData.append(vals)
         vals = self.isHeaderInFile("Interval",fname)
+        print(vals)
         if(vals!="null"):
-            neededData.append(vals)
+            neededData.append("Interval")
 
         #create the dictionary with neededData columns from above
         file = pd.read_csv(fname, usecols = neededData)
@@ -211,11 +213,13 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
         #check for near match of interval and core type
         vals = self.isHeaderInFile("Type",fname)
+        print(vals)
         if(vals!="null"):
             neededData.append(vals)
         vals = self.isHeaderInFile("Interval",fname)
+        print(vals)
         if(vals!="null"):
-            neededData.append(vals)
+            neededData.append("Interval")
 
         #create the dictionary with neededData columns from above
         file = pd.read_csv(fname, usecols = neededData)
