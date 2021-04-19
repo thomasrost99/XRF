@@ -154,7 +154,8 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         reader = csv.DictReader(file)
         dict_from_csv = dict(list(reader)[0])
         columns = list(dict_from_csv.keys())
-        columns = self.unifyHeaderNames(columns)
+        #columns = self.unifyHeaderNames(columns)
+
 
         #does it have all the data we need? what data is it missing?
         for i in neededData:
