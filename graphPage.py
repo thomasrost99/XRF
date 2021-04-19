@@ -21,6 +21,7 @@ from os import listdir
 from os.path import isfile, join
 import elementSelectorPage
 import baseElementSelectorPage
+from pylr2 import regress2
 
 fileName = ""
 majorAxisRegressionSelected = False
@@ -93,7 +94,7 @@ class GraphPage(QtWidgets.QWizardPage):
             if(energy_levels.index(el) == 0):
                 xrf_data = el_temp_df
             else:
-                xrf_data = pd.merge(xrf_data, el_temp_df,how='outer', on=['Site', 'Hole' ,'Core', 'Core Type', 'Section', "Interval (cm)"])
+                xrf_data = pd.merge(xrf_data, el_temp_df,how='outer', on=['Site', 'Hole' ,'Core', 'Core Type', 'Section', "Interval"])
 
         conc_data = pd.DataFrame()
 
@@ -120,11 +121,11 @@ class GraphPage(QtWidgets.QWizardPage):
                 hole_scanner = xrf_data[xrf_data['Hole'] == conc_data['Hole'][i]]
                 core_scanner = hole_scanner[hole_scanner['Core'] == conc_data['Core'][i]]
                 section_scanner = core_scanner[core_scanner['Section'] == conc_data['Section'][i]]
-                interval_scanner = section_scanner[section_scanner['Interval (cm)'] == conc_data['Interval (cm)'][i]]
+                interval_scanner = section_scanner[section_scanner['Interval'] == conc_data['Interval'][i]]
                 if interval_scanner.shape[0] == 0:
-                    interval_scanner = section_scanner[section_scanner['Interval (cm)'] == conc_data['Interval (cm)'][i]-1]
+                    interval_scanner = section_scanner[section_scanner['Interval'] == conc_data['Interval'][i]+1]
                     if interval_scanner.shape[0] == 0:
-                        interval_scanner = section_scanner[section_scanner['Interval (cm)'] == conc_data['Interval (cm)'][i]-2]
+                        interval_scanner = section_scanner[section_scanner['Interval'] == conc_data['Interval'][i]+2]
                         if interval_scanner.shape[0] == 0:
                             continue
                 elem_base_master = elem_base_master.append({'Conc': conc_data[element+'/'+base_elem][i], 'Scanner': np.mean(interval_scanner['ln('+element+'/'+base_elem+')'])},
@@ -135,15 +136,34 @@ class GraphPage(QtWidgets.QWizardPage):
             elem_base_master_final = elem_base_master.dropna()
             X = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_XRF']).reshape(-1, 1)
             Y = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_Conc']).reshape(-1, 1)
-            regr = LinearRegression()
-            regr.fit(X, Y)
-            score = regr.score(X,Y)
-            dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': score,
-                'coef': regr.coef_[0][0], 'intercept': regr.intercept_[0]}
+            
+            if(majorAxisRegressionSelected):
+                results = regress2(X, Y, _method_type_2="reduced major axis")
+                slope = 0
+                intercept = 0
+                r_score = 0
+                for key, value in results.items():
+                    if key == "slope":
+                        slope = value
+                    elif key == "intercept":
+                        intercept = value
+                    elif key == "r":
+                        r_score = value
+                dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': r_score,
+                    'coef': slope, 'intercept': intercept}
+                log_predicted = np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1)*slope + intercept
+                
+            else:
+                regr = LinearRegression()
+                regr.fit(X, Y)
+                score = regr.score(X,Y)
+                dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': score,
+                    'coef': regr.coef_[0][0], 'intercept': regr.intercept_[0]}
 
-            log_predicted = regr.predict(np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1))
+                log_predicted = regr.predict(np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1))
+
+            
             predicted_ratio = np.exp(log_predicted)
-
             output_data['predicted_ln('+element+'/'+base_elem+')'] = log_predicted
             output_data['predicted_'+element+'/'+base_elem] = predicted_ratio
 
