@@ -182,6 +182,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
 
         #check for near match of interval and core type
         vals = self.isHeaderInFile("Type",fname)
+
         if(vals!="null"):
             neededData.append(vals)
         vals = self.isHeaderInFile("Interval",fname)
@@ -255,6 +256,7 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                             #string is not a number so we make it zero
                             except ValueError:
                                 app.conDict[file][key][i] = 0
+
 
     #parse through every element in each file of dictMaster and replace all non numeric input with the int equivalent or zero
     def removeNonNumericDictMasterData(self):
