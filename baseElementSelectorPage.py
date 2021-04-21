@@ -56,12 +56,6 @@ class BaseElementSelectorPage(QtWidgets.QWizardPage):
         flag = False
         for butt in buttons:
             if(butt.isChecked()):
-                el = butt.text()
-                #print(butt.text())
-                if(el in inputSelectorPage.xrfElements):
-                    inputSelectorPage.xrfElements.remove(butt.text())
-                if(el in inputSelectorPage.elementsToDisplay):
-                    inputSelectorPage.elementsToDisplay.remove(butt.text())
                 flag = True
                 break
         return flag

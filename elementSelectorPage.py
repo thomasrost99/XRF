@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import inputSelectorPage
+import baseElementSelectorPage
 
 elementsToGraph = []
 
@@ -40,6 +41,13 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
     def initializePage(self):
         #print(set(inputSelectorPage.xrfElements))
         #print(set(inputSelectorPage.elementsToDisplay))
+        baseEl = baseElementSelectorPage.baseElement
+        print(baseEl)
+        if(baseEl in inputSelectorPage.xrfElements):
+            inputSelectorPage.xrfElements.remove(baseEl)
+        if(baseEl in inputSelectorPage.elementsToDisplay):
+            inputSelectorPage.elementsToDisplay.remove(baseEl)
+
         temp  = sorted(set(list(set(inputSelectorPage.xrfElements) & set(inputSelectorPage.elementsToDisplay))))
         #print(temp)
         #temp = sorted(set(temp))
