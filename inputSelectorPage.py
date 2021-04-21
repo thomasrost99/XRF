@@ -61,6 +61,8 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     def initializePage(self):
         global elementsToDisplay
         elementsToDisplay = []
+        global xrfElements
+        xrfElements = []
 
     # If "add" item is clicked in XRF input, choose a new csv file to add to the list. If any other list item is clicked,
     # it should be removed.
