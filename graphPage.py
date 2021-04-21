@@ -49,9 +49,6 @@ class GraphPage(QtWidgets.QWizardPage):
         self.onlyfiles = []
         self.elements = []
 
-        if not os.path.exists('./GraphImages/'):
-            os.makedirs('./GraphImages/')
-
 
         #-----------------------------------------------------------------------------------------
 
@@ -62,11 +59,15 @@ class GraphPage(QtWidgets.QWizardPage):
             fileName = fileName[:fileName.find(".")]
         #if ".pdf" not in fileName:
             #fileName = fileName + ".pdf"
+        global dir
+        dir = os.path.split(fileName)[0]
 
-        print(fileName)
-        filelist = [ f for f in os.listdir("./GraphImages/") if f.endswith(".png") ]
+        if not os.path.exists(dir + '/GraphImages/'):
+            os.makedirs(dir + '/GraphImages/')
+
+        filelist = [ f for f in os.listdir(dir + "/GraphImages/") if f.endswith(".png") ]
         for f in filelist:
-            os.remove(os.path.join("./GraphImages/", f))
+            os.remove(os.path.join(dir + "/GraphImages/", f))
 
         # This list contains the elements that were selected on elementSelectorPage
         self.elements = elementSelectorPage.elementsToGraph
@@ -186,22 +187,20 @@ class GraphPage(QtWidgets.QWizardPage):
             eq = "y = " + str(round(dict_for_plots[plot]["coef"], 2)) + "x + " + str(round(dict_for_plots[plot]["intercept"], 2))
             plt.text(0.1,0.85, eq, transform=plt.gca().transAxes)
             #plt.show()
-            plt.savefig('GraphImages/'+ plot.replace("/", "") + '.png')
+            plt.savefig(dir + '/GraphImages/'+ plot.replace("/", "") + '.png')
             pdf.savefig(fig)
 
         pdf.close()
 
-        onlyfiles = [f for f in listdir("./GraphImages/") if isfile(join("./GraphImages/", f))]
+        onlyfiles = [f for f in listdir(dir + "/GraphImages/") if isfile(join(dir + "/GraphImages/", f))]
 
         self.dropDown.clear()
         for file in onlyfiles:
             self.dropDown.addItem(file)
 
-
-
     def onChanged(self, text):
         self.layout.removeWidget(self.picLabel)
-        self.pic = QPixmap("./GraphImages/" + str(text))
+        self.pic = QPixmap(dir + "/GraphImages/" + str(text))
         self.picLabel = QLabel()
         self.picLabel.setPixmap(self.pic)
         self.layout.addWidget(self.picLabel)
