@@ -44,14 +44,6 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
         #selected base element
         baseEl = baseElementSelectorPage.baseElement
 
-        #remove the base element from the display list so it can not be selected
-        #xrfMirror =  inputSelectorPage.xrfElements
-        #conMirror = inputSelectorPage.elementsToDisplay
-        #if(baseEl in xrfMirror):
-            #xrfMirror.remove(baseEl)
-        #if(baseEl in conMirror):
-            #conMirror.remove(baseEl)
-
         #intersect the lists without the base element and sort alphabetically
         temp  = sorted(set(list(set(inputSelectorPage.xrfElements) & set(inputSelectorPage.elementsToDisplay))))
         num = 1
@@ -60,6 +52,7 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
 
         #add all the selectable elements to the page
         for element in temp:
+            #do not display the base element
             if(element != baseEl):
                 self.listwidget.insertItem(num, str(element))
                 num = num + 1
