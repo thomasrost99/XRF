@@ -61,56 +61,6 @@ class MacWizard(QtWidgets.QWizard):
         self.setPage(graphPageID, self.graphPage)
 
 
-        #link all buttons to proper functions
-        self.button(QWizard.NextButton).clicked.connect(self.nextClicked)
-        self.button(QWizard.FinishButton).clicked.connect(self.finishClicked)
-        self.button(QWizard.CancelButton).clicked.connect(self.cancelClicked)
-        self.button(QWizard.BackButton).clicked.connect(self.backClicked)
-
-    def lockButton(self, name):
-        print('LOCKED: ' + name)
-        if(name=='back'):
-            self.button(QWizard.BackButton).setEnabled(False)
-        elif(name=='next'):
-            self.button(QWizard.NextButton).setEnabled(False)
-        elif(name=='cancel'):
-            self.button(QWizard.CancelButton).setEnabled(False)
-        elif(name=='finish'):
-            self.button(QWizard.FinishButton).setEnabled(False)
-        else:
-            return False
-        return True
-
-    def unlockButton(self, name):
-        print('UNLOCKED: ' + name)
-        if(name=='back'):
-            self.button(QWizard.BackButton).setEnabled(True)
-        elif(name=='next'):
-            self.button(QWizard.NextButton).setEnabled(True)
-        elif(name=='cancel'):
-            self.button(QWizard.CancelButton).setEnabled(True)
-        elif(name=='finish'):
-            self.button(QWizard.FinishButton).setEnabled(True)
-        else:
-            return False
-        return True
-
-    def nextClicked(self):
-        pageID = QWizard.currentId(self)
-
-
-
-    def finishClicked(self):
-        print("finishClicked")
-
-    def cancelClicked(self):
-        print("Cancelled")
-
-    def backClicked(self):
-        print("back")
-
-
-
 if __name__ == '__main__':
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -118,4 +68,3 @@ if __name__ == '__main__':
     wizard.show()
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.exec_()
-    #print('\n'.join(repr(w) for w in app.allWidgets()))

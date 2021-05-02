@@ -45,23 +45,24 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
         baseEl = baseElementSelectorPage.baseElement
 
         #remove the base element from the display list so it can not be selected
-        xrfMirror =  inputSelectorPage.xrfElements
-        conMirror = inputSelectorPage.elementsToDisplay
-        if(baseEl in xrfMirror):
-            xrfMirror.remove(baseEl)
-        if(baseEl in conMirror):
-            conMirror.remove(baseEl)
+        #xrfMirror =  inputSelectorPage.xrfElements
+        #conMirror = inputSelectorPage.elementsToDisplay
+        #if(baseEl in xrfMirror):
+            #xrfMirror.remove(baseEl)
+        #if(baseEl in conMirror):
+            #conMirror.remove(baseEl)
 
         #intersect the lists without the base element and sort alphabetically
-        temp  = sorted(set(list(set(xrfMirror) & set(conMirror))))
+        temp  = sorted(set(list(set(inputSelectorPage.xrfElements) & set(inputSelectorPage.elementsToDisplay))))
         num = 1
         #clear the list
         self.listwidget.clear()
-        
+
         #add all the selectable elements to the page
         for element in temp:
-            self.listwidget.insertItem(num, str(element))
-            num = num + 1
+            if(element != baseEl):
+                self.listwidget.insertItem(num, str(element))
+                num = num + 1
 
     #allows the user to advance if at least one element is selected
     def isComplete(self):
