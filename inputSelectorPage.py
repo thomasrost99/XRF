@@ -67,53 +67,65 @@ class InputSelectorPage(QtWidgets.QWizardPage):
     # If "add" item is clicked in XRF input, choose a new csv file to add to the list. If any other list item is clicked,
     # it should be removed.
     def XRFClicked(self, qmodelindex):
+        #if they click add file open a file selector looking for csv files only
         if(self.XRFInput.currentItem().text() == "Add an XRF file"):
             dialog = QFileDialog
             res = dialog.getOpenFileNames(self, 'Open file', '',"XRF files (*.csv)")
+
+            #was a file selected
             if(res[0]):
                 for file in res[0]:
                     duplicate = 0
                     for i in range(self.XRFInput.count()):
+                        #see if this file is already in the list
                         if(file == self.XRFInput.item(i).text()):
                             duplicate = 1
+                    #if this was a new file not already present, add it to the list and populate the dictMaster (XRF dictionary)
                     if not duplicate:
+                        #check for neccesary headers
                         if self.isFileValid("XRF", file):
                             self.XRFInput.insertItem(1, file)
                             self.addToDictMaster(file)
+        #if a file was clicked, remove it from the list and update dictionaries
         else:
             app.dictMaster.pop(self.XRFInput.currentItem().text())
             self.XRFInput.takeItem(self.XRFInput.currentRow())
+        #notify changes and clear selection stack
         self.XRFInput.clearSelection()
-        #print(app.dictMaster)
         self.completeChanged.emit()
 
     # If "add" item is clicked in Concentration input, choose a new csv file to add to the list. If any other list item is clicked,
     # it should be removed.
     def ConClicked(self, qmodelindex):
+        #if they click add file open a file selector looking for csv files only
         if(self.conInput.currentItem().text() == "Add a Concentration file"):
             dialog = QFileDialog
             res = dialog.getOpenFileNames(self, 'Open file', '',"Calibration files (*.csv)")
+            #if a file was selected
             if(res[0]):
                 for file in res[0]:
                     duplicate = 0
+                    #if there is more than one concentration file presentr in the list spawn error box (LIMIT 1)
                     if(self.conInput.count()>1):
                         self.createTooManyConcentrationMsgBox()
-                    #for i in range(self.conInput.count()):
-                        #if(file == self.conInput.item(i).text()):
-                            #duplicate = 1
-                    #if not duplicate:
+                    #if there is not a concentration file uplaoded yet, add the selected one and update the concentration dictionary
                     else:
+                        #see if it has the neccesary headers
                         if self.isFileValid("Concentration", file):
                             self.conInput.insertItem(1, file)
                             self.addToConDict(file)
+        #if they clicked a file already in the list, remove it from the dicitionaries
         else:
             app.conDict.pop(self.conInput.currentItem().text())
             self.conInput.takeItem(self.conInput.currentRow())
+            #there will be no elements on the following screen until a concentration file is selected
             global elementsToDisplay
             elementsToDisplay = []
+        #notify the app of changes to the concentration list
         self.conInput.clearSelection()
         self.completeChanged.emit()
 
+    #message box that appears when the user tries to upload more than 1 concention file (LIMIT 1)
     def createTooManyConcentrationMsgBox(self):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
@@ -128,10 +140,8 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         msg.setIcon(QMessageBox.Critical)
         add = "Found the Following Column Headers:\n" + ', '.join(cols) + "\n\nNeeded Columns That are Missing:\n" + ', '.join(missingFields)
         msg.setText(add)
-        #msg.setInformativeText(', '.join(missingFields))
         msg.setWindowTitle("Error: Missing Values")
         msg.setStandardButtons(QMessageBox.Cancel)
-        msg.buttonClicked.connect(self.msgbtn)
         msg.exec_()
 
     #deals with issue regarding Type v Core Type and Interval v Interval (cm)
@@ -143,7 +153,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
             if("Interval" in header):
                 columns[columns.index(header)] = "Interval"
                 break
-
         return columns
 
     #determines if an uploaded file has the required Site, Hole, Core, Type, Section, and Interval data
@@ -157,8 +166,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         reader = csv.DictReader(file)
         dict_from_csv = dict(list(reader)[0])
         columns = list(dict_from_csv.keys())
-        #columns = self.unifyHeaderNames(columns)
-
 
         #does it have all the data we need? what data is it missing?
         for i in neededData:
@@ -181,30 +188,35 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         app.dictMaster[fname] = {}
         #used to find these columns from XRF file and init the dictionary for this file
         neededData = ["Site","Hole","Core","Section"]
-
-        #check for near match of interval and core type
+        #see if Type is present in some capacity, if so add Type to needed Data because it is present in the file
         vals = self.isHeaderInFile("Type",fname)
-
         if(vals!="null"):
             neededData.append(vals)
+
+        #see if interval is present in some capacity, if so add Type to needed Data because it is present in the file
         vals = self.isHeaderInFile("Interval",fname)
         if(vals!="null"):
             neededData.append("Interval")
 
         #create the dictionary with neededData columns from above
         file = pd.read_csv(fname, usecols = neededData)
+        #create the file entry in dictMaster the key is the full path to uploaded file
         app.dictMaster[fname] = file.to_dict(orient='list')
 
+        #loop through all known elements
         for element in elements:
             # Figure out if element column is present in file. Temp consists of Object (or none) and column index (or -1)
             temp = self.isElementInFile(element, fname)
             if temp[0]:
+                #append to a list of elements found in all uploaded XRF files
                 global xrfElements
                 xrfElements.append(element)
-
+                #find the column with the current element
                 df = pd.read_csv(fname, usecols = [temp[1]])
+                #add a list of the current elements data from the uploaded file to the dictMaster[filename][element] : [data1,data2,data3 ...]
                 app.dictMaster[fname].update(df.to_dict(orient='list'))
                 app.dictMaster[fname][element] = app.dictMaster[fname].pop(temp[0])
+        #replace all non numeric data with zero
         self.removeNonNumericDictMasterData()
 
     #add retrieved data to the dictionary containing all Concentration data
@@ -214,10 +226,11 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         #used to find these columns from XRF file and init the dictionary for this file
         neededData = ["Site","Hole","Core","Section"]
 
-        #check for near match of interval and core type
+        #see if Type is present in some capacity, if so add Type to needed Data because it is present in the file
         vals = self.isHeaderInFile("Type",fname)
         if(vals!="null"):
             neededData.append(vals)
+        #see if interval is present in some capacity, if so add Type to needed Data because it is present in the file
         vals = self.isHeaderInFile("Interval",fname)
         if(vals!="null"):
             neededData.append("Interval")
@@ -226,18 +239,21 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         file = pd.read_csv(fname, usecols = neededData)
         app.conDict[fname] = file.to_dict(orient='list')
         count = 0
+
+        #loop through all known elements
         for element in elements:
             # Figure out if element column is present in file. Temp consists of Object (or none) and column index (or -1)
             temp = self.isElementInFile(element, fname)
             if temp[0]:
-                #ElementSelectorPage.conElements.append(temp[0])
-                #update the element selector screen
+                #update list with all elements found in this concentration file
                 global elementsToDisplay
                 elementsToDisplay.append(temp[0])
-                #add to the concentration dictionary the data collected from this file
+                #add to the concentration dictionary the data collected from this file for current element
                 df = pd.read_csv(fname, usecols = [temp[1]])
+                #add a list of the current elements data from the uploaded file to the conDict[filename][element] : [data1,data2,data3 ...]
                 app.conDict[fname].update(df.to_dict(orient='list'))
                 app.conDict[fname][element] = app.conDict[fname].pop(temp[0])
+        #replace all non numeric data with zero
         self.removeNonNumericConDictData()
 
     #parse through every element in each file of conDict and replace all non numeric input with the int equivalent or zero
@@ -291,10 +307,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                 return header
         return "null"
 
-    #unused button function
-    def msgbtn(self, i):
-        print("Button pressed: " + i.text())
-
     #given an element (Fe) and filename, will determine if a column header contains that element with some regex to handle different string literals
     def isElementInFile(self, element, fileName):
         file = open(fileName ,'r')
@@ -311,5 +323,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         file.close()
         return None, -1
 
+    #allow the wizard to advance if there is at least one XRF file uploaded and one concentration file is present
     def isComplete(self):
         return self.XRFInput.item(1) is not None and self.conInput.item(1) is not None
