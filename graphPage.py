@@ -33,12 +33,14 @@ class GraphPage(QtWidgets.QWizardPage):
         label = QLabel("Select a graph to view")
         self.layout.addWidget(label)
 
+        #creates drop down menu
         self.dropDown = QComboBox(self)
         self.dropDown.activated[str].connect(self.onChanged)
         self.layout.addWidget(self.dropDown)
 
         fileName = ""
 
+        # creates image widget
         self.pic = QPixmap("")
         self.picLabel = QLabel()
         self.picLabel.setPixmap(self.pic)
@@ -52,7 +54,7 @@ class GraphPage(QtWidgets.QWizardPage):
 
         #-----------------------------------------------------------------------------------------
 
-
+    # Is called each time the page is accessed
     def initializePage(self):
         global fileName
         if "." in fileName:
@@ -62,9 +64,11 @@ class GraphPage(QtWidgets.QWizardPage):
         global dir
         dir = os.path.split(fileName)[0]
 
+        #creates directory if it does not exist
         if not os.path.exists(dir + '/GraphImages/'):
             os.makedirs(dir + '/GraphImages/')
 
+        #empties the directory
         filelist = [ f for f in os.listdir(dir + "/GraphImages/") if f.endswith(".png") ]
         for f in filelist:
             os.remove(os.path.join(dir + "/GraphImages/", f))
@@ -140,7 +144,7 @@ class GraphPage(QtWidgets.QWizardPage):
                     continue
                 X = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_XRF']).reshape(-1, 1)
                 Y = np.array(elem_base_master_final['ln('+element+'/'+base_elem+')_Conc']).reshape(-1, 1)
-                
+
                 if(majorAxisRegressionSelected):
                     results = regress2(X, Y, _method_type_2="reduced major axis")
                     slope = 0
@@ -156,7 +160,7 @@ class GraphPage(QtWidgets.QWizardPage):
                     dict_for_plots[element+'/'+base_elem] = {'x_val': X, 'y_val': Y, 'r_score': r_score,
                         'coef': slope, 'intercept': intercept}
                     log_predicted = np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1)*slope + intercept
-                    
+
                 else:
                     regr = LinearRegression()
                     regr.fit(X, Y)
@@ -166,7 +170,7 @@ class GraphPage(QtWidgets.QWizardPage):
 
                     log_predicted = np.array(xrf_data['ln('+element+'/'+base_elem+')']).reshape(-1, 1)*regr.coef_[0][0] + regr.intercept_[0]
 
-                
+
                 predicted_ratio = np.exp(log_predicted)
                 output_data['predicted_ln('+element+'/'+base_elem+')'] = log_predicted
                 output_data['predicted_'+element+'/'+base_elem] = predicted_ratio
@@ -175,6 +179,7 @@ class GraphPage(QtWidgets.QWizardPage):
         except:
             print("Error Occured!")
 
+        # Creates plots and saves as png and pdf
         for plot in dict_for_plots:
             fig = plt.figure()
             plt.scatter(dict_for_plots[plot]["x_val"], dict_for_plots[plot]["y_val"], color ='b')
@@ -194,10 +199,12 @@ class GraphPage(QtWidgets.QWizardPage):
 
         onlyfiles = [f for f in listdir(dir + "/GraphImages/") if isfile(join(dir + "/GraphImages/", f))]
 
+        #populates drop down menu with new plots
         self.dropDown.clear()
         for file in onlyfiles:
             self.dropDown.addItem(file)
 
+    # Updates plot on screen
     def onChanged(self, text):
         self.layout.removeWidget(self.picLabel)
         self.pic = QPixmap(dir + "/GraphImages/" + str(text))
