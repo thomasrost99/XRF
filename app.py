@@ -13,7 +13,9 @@ from graphPage import *
 from qt_material import apply_stylesheet
 from baseElementSelectorPage import *
 
+#dictionary for all data in the uploaded XRF files
 dictMaster = {}
+#dictionary for all data in the uploaded concentration file
 conDict = {}
 
 class QIComboBox(QtWidgets.QComboBox):
