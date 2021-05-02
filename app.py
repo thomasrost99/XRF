@@ -28,10 +28,7 @@ class MacWizard(QtWidgets.QWizard):
         self.setWindowTitle("MaXelerate")
 
         #apply styles
-        #apply_stylesheet(app, theme='dark_blue.xml')
         self.setWizardStyle(1)
-
-        #maybe dont need
         self.setOption(QWizard.IndependentPages, False)
 
         # Define screen size
@@ -48,6 +45,7 @@ class MacWizard(QtWidgets.QWizard):
         self.graphPage = GraphPage(self)
         self.baseElementPage = BaseElementSelectorPage(self)
 
+        #set page ID/index
         global inputPageID, elementPageID
         inputPageID = 0
         basePageID = 1
@@ -68,5 +66,6 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     wizard = MacWizard()
     wizard.show()
+    #allow app to be killed with ctrl+c on terminal
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.exec_()
