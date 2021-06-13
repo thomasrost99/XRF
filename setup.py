@@ -9,7 +9,7 @@ from setuptools import setup
 
 APP = ['app.py']
 DATA_FILES = []
-OPTIONS = {'packages':['pandas', 'scipy', 'sklearn'], 'includes':['cmath']}
+OPTIONS = {'packages': ['pandas', 'scipy', 'sklearn'], 'includes': ['cmath']}
 
 setup(
     app=APP,
