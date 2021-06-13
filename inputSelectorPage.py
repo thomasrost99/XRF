@@ -1,9 +1,11 @@
 import csv
-from PyQt5 import QtWidgets, QtCore
-from elements import elements
-import pandas as pd
 import re
+
+from PyQt5 import QtWidgets, QtCore
+import pandas as pd
+
 import app
+from elements import elements
 
 # concentration elements
 elementsToDisplay = []

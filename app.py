@@ -2,6 +2,7 @@
 import signal
 
 from PyQt5.QtWidgets import QWizard
+
 from elementSelectorPage import *
 from inputSelectorPage import *
 from optionsPage import *

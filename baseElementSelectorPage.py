@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets
+
 import inputSelectorPage
 
 # global variables used to keep track of base element and radio buttons present on this page
