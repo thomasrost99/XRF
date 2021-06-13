@@ -243,7 +243,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
         # create the dictionary with neededData columns from above
         file = pd.read_csv(fname, usecols=neededData)
         app.conDict[fname] = file.to_dict(orient='list')
-        count = 0
 
         # loop through all known elements
         for element in elements:
@@ -282,7 +281,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                                 app.conDict[file][key][i] = 0
 
     # parse through every element in each file of dictMaster and replace all non numeric input with the int equivalent or zero
-
     def removeNonNumericDictMasterData(self):
         # all files in conDict
         for file in app.dictMaster:
@@ -304,7 +302,6 @@ class InputSelectorPage(QtWidgets.QWizardPage):
                                 app.dictMaster[file][key][i] = 0
 
     # given a header (key) and filename, this will determine if it exists in the file, null otherwise
-
     def isHeaderInFile(self, key, fileName):
         file = open(fileName, 'r')
         reader = csv.reader(file)

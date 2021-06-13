@@ -56,9 +56,7 @@ class BaseElementSelectorPage(QtWidgets.QWizardPage):
 
     # allows the user to advance if there is a selected button
     def isComplete(self):
-        flag = False
         for butt in buttons:
             if(butt.isChecked()):
-                flag = True
-                break
-        return flag
+                return True
+        return False

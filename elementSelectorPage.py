@@ -3,8 +3,6 @@ from PyQt5 import QtWidgets
 import inputSelectorPage
 import baseElementSelectorPage
 
-elementsToGraph = []
-
 
 class ElementSelectorPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -38,22 +36,17 @@ class ElementSelectorPage(QtWidgets.QWizardPage):
         self.completeChanged.emit()
 
     def initializePage(self):
-        # selected base element
-        baseEl = baseElementSelectorPage.baseElement
-
         # intersect the lists without the base element and sort alphabetically
         temp = sorted(set(list(set(inputSelectorPage.xrfElements)
                       & set(inputSelectorPage.elementsToDisplay))))
-        num = 1
         # clear the list
         self.listwidget.clear()
 
         # add all the selectable elements to the page
         for element in temp:
             # do not display the base element
-            if(element != baseEl):
-                self.listwidget.insertItem(num, str(element))
-                num = num + 1
+            if(element != baseElementSelectorPage.baseElement):
+                self.listwidget.addItem(str(element))
 
     # allows the user to advance if at least one element is selected
     def isComplete(self):
