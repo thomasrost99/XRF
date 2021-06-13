@@ -1,11 +1,7 @@
-from PyQt5 import QtCore, QtWidgets
-import signal
-import sys
-import csv
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import re
 import graphPage
 
 class OptionsPage(QtWidgets.QWizardPage):

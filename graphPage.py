@@ -1,11 +1,7 @@
-from PyQt5 import QtCore, QtWidgets
-import signal
-import sys
-import csv
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import random
 from PyQt5 import *
 from random import randint
 from qt_material import apply_stylesheet
@@ -13,7 +9,6 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
-from datetime import datetime
 import matplotlib.backends.backend_pdf
 import app
 import os

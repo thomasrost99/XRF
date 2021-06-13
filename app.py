@@ -1,16 +1,8 @@
 #!/usr/bin/env python
-from PyQt5 import QtCore, QtWidgets
-import signal
-import sys
-import csv
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
 from elementSelectorPage import *
 from inputSelectorPage import *
 from optionsPage import *
 from graphPage import *
-from qt_material import apply_stylesheet
 from baseElementSelectorPage import *
 
 #dictionary for all data in the uploaded XRF files

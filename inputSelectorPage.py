@@ -1,11 +1,8 @@
-import sys
-import random
 import csv
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from random import randint
 from elements import *
 import pandas as pd
 import re
